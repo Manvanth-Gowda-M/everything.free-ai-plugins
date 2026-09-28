@@ -1,5 +1,5 @@
 import { Capability, CapabilityResult } from "./types.js";
-import { ErrorCode } from "./errors.js";
+import { ErrorCode, formatZodError } from "./errors.js";
 
 export interface ExecutionOptions {
   /** Override timeout in ms */
@@ -28,9 +28,12 @@ export class ExecutionRunner {
       return {
         success: false,
         error: {
-          code: ErrorCode.VALIDATION_ERROR,
-          message: "Input validation failed",
-          details: parseResult.error.format(),
+          code: ErrorCode.INVALID_INPUT,
+          message: formatZodError(parseResult.error),
+          details: {
+            fieldErrors: parseResult.error.flatten().fieldErrors,
+            formatted: parseResult.error.format(),
+          },
         },
         metrics: {
           durationMs: Date.now() - startTime,

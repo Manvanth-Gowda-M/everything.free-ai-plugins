@@ -1,5 +1,27 @@
-import { Capability } from "./types.js";
+import { Capability, CapabilityPackName } from "./types.js";
 import { CapabilityError, ErrorCode } from "./errors.js";
+
+/**
+ * Summary structure for capability inventory.
+ */
+export interface CapabilityInventoryItem {
+  name: string;
+  displayName: string;
+  version: string;
+  category: string;
+  pack: CapabilityPackName;
+  description: string;
+  operations: string[];
+}
+
+/**
+ * Complete capability inventory descriptor.
+ */
+export interface CapabilityInventory {
+  totalCount: number;
+  packCounts: Record<CapabilityPackName, number>;
+  capabilities: CapabilityInventoryItem[];
+}
 
 /**
  * In-memory Registry for managing, discovering, and querying capabilities.
@@ -57,6 +79,50 @@ export class CapabilityRegistry {
    */
   public count(): number {
     return this.capabilities.size;
+  }
+
+  /**
+   * Get capabilities belonging to a specific pack.
+   */
+  public getByPack(packName: CapabilityPackName): Capability[] {
+    return this.getAll().filter((c) => c.metadata.pack === packName);
+  }
+
+  /**
+   * Return a structured, machine-readable inventory of all registered capabilities.
+   */
+  public getInventory(): CapabilityInventory {
+    const caps = this.getAll();
+    const packCounts: Record<CapabilityPackName, number> = {
+      "Data Pack": 0,
+      "Text Pack": 0,
+      "Encoding Pack": 0,
+      "Utility Pack": 0,
+      "Developer Pack": 0,
+    };
+
+    const inventoryItems: CapabilityInventoryItem[] = caps.map((c) => {
+      const { name, displayName, version, category, pack, description, operations } = c.metadata;
+      if (pack && pack in packCounts) {
+        packCounts[pack]++;
+      }
+
+      return {
+        name,
+        displayName,
+        version,
+        category,
+        pack,
+        description,
+        operations: operations ? operations.map((op) => op.name) : [],
+      };
+    });
+
+    return {
+      totalCount: caps.length,
+      packCounts,
+      capabilities: inventoryItems,
+    };
   }
 
   /**
