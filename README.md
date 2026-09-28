@@ -6,7 +6,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![MCP Compatible](https://img.shields.io/badge/MCP-Compatible-green.svg)](https://modelcontextprotocol.io)
 
-**Everything.Free AI Plugins** is an open-source, capability-centric platform built on the **Model Context Protocol (MCP)**. It gives AI assistants like **ChatGPT** access to a suite of free, deterministic, and sandboxed developer and data tools through a single connection.
+**Everything.Free AI Plugins** is an open-source, capability-centric platform built on the **Model Context Protocol (MCP)**. It gives AI assistants like **ChatGPT** access to a growing suite of 100% free, deterministic, and sandboxed developer and data tools through a single connection.
 
 ---
 
@@ -16,17 +16,21 @@
 * **ChatGPT-Ready (Streamable HTTP)**: Implements official MCP Streamable HTTP transport over native Node.js HTTP.
 * **Local & Privacy-First**: In-memory stateless processing. User data is never stored, logged, or sent to third-party tracking services.
 * **Platform-Independent Engine**: Core capability engine is decoupled from protocols and ready for future Claude and Gemini adapters.
-* **Strict Safety Boundaries**: Zod schema validation, execution timeouts, and payload limits.
+* **Strict Safety Boundaries**: Zod schema validation, execution timeouts, and input size bounds.
 
 ---
 
-## 📦 MVP Capability
+## 📦 Built-in Capabilities Catalog
 
-### `json_formatter_validator`
-* **Format**: Pretty-prints messy or minified JSON with customizable indentation.
-* **Minify**: Compresses JSON payloads into compact strings.
-* **Validate**: Validates JSON syntax and provides human-readable line/column error diagnostics with code snippets.
-* **Inspect**: Analyzes data structures, root types, nesting depths, and key/item counts.
+Everything.Free currently exposes **5 core local capabilities**:
+
+| Capability | Category | Description | Docs |
+| :--- | :--- | :--- | :--- |
+| **`json_formatter_validator`** | `data` | Format, minify, validate, and inspect JSON with line/column syntax diagnostics | [Docs](docs/capabilities/json-formatter-validator.md) |
+| **`text_diff_analyzer`** | `text` | Compute structured line/word diffs and summaries between text blocks | [Docs](docs/capabilities/text-diff-analyzer.md) |
+| **`hash_and_encoding`** | `encoding` | SHA-256, SHA-512, Base64/Base64URL, Hex, URL encoding, and UUIDv4 | [Docs](docs/capabilities/hash-and-encoding.md) |
+| **`unit_time_converter`** | `utility` | Length, mass, temperature, volume, speed, Unix timestamps, ISO dates & timezones | [Docs](docs/capabilities/unit-time-converter.md) |
+| **`regex_tester`** | `developer` | Safely test, match, and extract capture groups with ReDoS protections | [Docs](docs/capabilities/regex-tester.md) |
 
 ---
 
@@ -65,18 +69,18 @@ npm run dev:stdio
    npx cloudflared tunnel --url http://localhost:3000
    ```
 3. **In ChatGPT**:
-   * Navigate to **Settings** → **Security & Login** (or **Developer Settings**) → Enable **Developer mode**.
+   * Navigate to **Settings** → **Security & Login** → Enable **Developer mode**.
    * Navigate to **Apps / Plugin Settings** → **Add App**.
    * Enter your HTTPS tunnel URL: `https://<your-tunnel-url>/mcp`.
    * Set Authentication to **No Auth**.
-4. ChatGPT will discover `json_formatter_validator` and can immediately call it during chats!
+4. ChatGPT will discover all 5 capabilities and can immediately invoke them during conversations!
 
 ---
 
 ## 🧪 Testing & Validation
 
 ```bash
-# Run all unit and MCP integration tests
+# Run all 49 unit and MCP integration tests
 npm test
 
 # Run TypeScript typecheck
@@ -106,8 +110,8 @@ Comprehensive architectural blueprints and specifications are available in the [
 
 ## 🗺️ Platform Roadmap
 
-* **Phase 1 (Current MVP)**: MCP Streamable HTTP server, ChatGPT Developer Mode compatibility, and `json_formatter_validator` vertical slice.
-* **Phase 2 (Claude Compatibility)**: Seamless integration with Claude Desktop & remote connectors. Local utility expansion (Text Diffing, Hashing/UUID, Regex testing).
+* **Phase 1 (Current MVP)**: MCP Streamable HTTP server, ChatGPT Developer Mode compatibility, and 5 foundational local capabilities.
+* **Phase 2 (Claude Compatibility)**: Seamless integration with Claude Desktop & remote connectors.
 * **Phase 3 (Gemini & Multi-Client)**: Gemini function calling adapter and community capabilities.
 
 ---
