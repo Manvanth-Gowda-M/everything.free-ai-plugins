@@ -136,6 +136,7 @@ export class UnitTimeConverterCapability
     name: "unit_time_converter",
     version: "1.0.0",
     category: "utility",
+    pack: "Utility Pack",
     displayName: "Unit & Time Converter",
     description:
       "Use when the user asks to convert physical measurement units (length, mass, temperature, volume, speed) " +

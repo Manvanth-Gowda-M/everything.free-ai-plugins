@@ -56,6 +56,7 @@ export class HashAndEncodingCapability
     name: "hash_and_encoding",
     version: "1.0.0",
     category: "encoding",
+    pack: "Encoding Pack",
     displayName: "Hash and Encoding Utilities",
     description:
       "Use when the user asks to compute SHA-256 or SHA-512 hashes, encode/decode Base64, Base64URL, Hex, URL strings, or generate UUIDs. " +

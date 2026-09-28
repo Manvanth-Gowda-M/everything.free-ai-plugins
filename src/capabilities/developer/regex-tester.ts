@@ -53,6 +53,7 @@ export class RegexTesterCapability
     name: "regex_tester",
     version: "1.0.0",
     category: "developer",
+    pack: "Developer Pack",
     displayName: "Regular Expression Tester & Extractor",
     description:
       "Use when the user asks to test, evaluate, match, or extract capture groups from text using a regular expression. " +

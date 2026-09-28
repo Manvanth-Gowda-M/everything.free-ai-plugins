@@ -100,6 +100,7 @@ export class TextDiffAnalyzerCapability
     name: "text_diff_analyzer",
     version: "1.0.0",
     category: "text",
+    pack: "Text Pack",
     displayName: "Text Diff Analyzer",
     description:
       "Use when the user asks to compare two text blocks, code snippets, config files, or documents to see what changed. " +

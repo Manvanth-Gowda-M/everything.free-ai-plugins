@@ -22,7 +22,9 @@ export interface CapabilityMetadata {
   privacy?: "local-only";
   /** External dependencies (empty array for built-in capabilities) */
   externalDependencies?: string[];
-  /** Hard execution timeout in milliseconds (default: 3000ms) */
+  /** Primary organizational Capability Pack (e.g., 'Data Pack', 'Text Pack') */
+  pack?: "Data Pack" | "Text Pack" | "Encoding Pack" | "Utility Pack" | "Developer Pack";
+  /** Maximum allowed execution time in milliseconds (default: 5000ms) */
   timeoutMs?: number;
   /** Explicit AI usage guidance to maximize tool selection accuracy */
   usageGuidance?: {
@@ -30,6 +32,15 @@ export interface CapabilityMetadata {
     doNotUseWhen: string[];
     exampleRequests: string[];
   };
+}
+
+/**
+ * Standard Capability Pack descriptor.
+ */
+export interface CapabilityPackInfo {
+  id: "data" | "text" | "encoding" | "developer" | "utility";
+  name: "Data Pack" | "Text Pack" | "Encoding Pack" | "Utility Pack" | "Developer Pack";
+  description: string;
 }
 
 /**

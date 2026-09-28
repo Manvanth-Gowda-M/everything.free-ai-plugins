@@ -115,6 +115,7 @@ export class JsonFormatterValidatorCapability
     name: "json_formatter_validator",
     version: "1.0.0",
     category: "data",
+    pack: "Data Pack",
     displayName: "JSON Formatter & Validator",
     description:
       "Use when the user asks to format, pretty-print, minify, validate syntax, or structurally inspect JSON data. " +
