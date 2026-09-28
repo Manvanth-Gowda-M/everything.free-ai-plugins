@@ -4,17 +4,21 @@ import { Capability, CapabilityMetadata, CapabilityResult } from "../../core/typ
 export const TextDiffInputSchema = z.object({
   original: z
     .string()
-    .max(100_000, "Original text exceeds maximum limit of 100KB")
-    .describe("The baseline / original text"),
+    .max(100_000, "Original text exceeds maximum size limit of 100KB")
+    .describe("The baseline or original text content to compare against"),
   modified: z
     .string()
-    .max(100_000, "Modified text exceeds maximum limit of 100KB")
-    .describe("The revised / modified text"),
+    .max(100_000, "Modified text exceeds maximum size limit of 100KB")
+    .describe("The new or revised text content"),
   mode: z
     .enum(["line", "word"])
     .default("line")
     .optional()
-    .describe("Comparison granularity: 'line' (default) or 'word'"),
+    .describe(
+      "Comparison granularity:\n" +
+        "- 'line': Line-by-line unified diff with additions (+) and deletions (-)\n" +
+        "- 'word': In-line word-by-word diff with marked additions [+text+] and deletions [-text-]"
+    ),
 });
 
 export type TextDiffInput = z.infer<typeof TextDiffInputSchema>;
@@ -42,12 +46,10 @@ function computeDiff(tokensA: string[], tokensB: string[], delimiter: string): D
   const n = tokensA.length;
   const m = tokensB.length;
 
-  // Optimize identical case
   if (n === m && tokensA.every((val, idx) => val === tokensB[idx])) {
     return tokensA.length > 0 ? [{ type: "unchanged", value: tokensA.join(delimiter) }] : [];
   }
 
-  // LCS Matrix
   const matrix: number[][] = Array.from({ length: n + 1 }, () => new Array(m + 1).fill(0));
 
   for (let i = 1; i <= n; i++) {
@@ -60,7 +62,6 @@ function computeDiff(tokensA: string[], tokensB: string[], delimiter: string): D
     }
   }
 
-  // Backtrack to build diff chunks
   const chunks: DiffChunk[] = [];
   let i = n;
   let j = m;
@@ -79,7 +80,6 @@ function computeDiff(tokensA: string[], tokensB: string[], delimiter: string): D
     }
   }
 
-  // Compact consecutive chunks of same type
   const compacted: DiffChunk[] = [];
   for (const chunk of chunks) {
     const last = compacted[compacted.length - 1];
@@ -102,12 +102,32 @@ export class TextDiffAnalyzerCapability
     category: "text",
     displayName: "Text Diff Analyzer",
     description:
-      "Analyzes and computes structured differences between two text blocks with line or word granularity. Returns diff summaries, counts, and unified diff output. 100% local, free, and privacy-safe.",
+      "Use when the user asks to compare two text blocks, code snippets, config files, or documents to see what changed. " +
+      "Computes structured line or word differences, additions, removals, and unified diff output. 100% local, free, and privacy-safe. " +
+      "Do NOT use for semantic text rewriting or grammar translation.",
     isFree: true,
     requiresExternalNetwork: false,
     privacy: "local-only",
     externalDependencies: [],
     timeoutMs: 3000,
+    usageGuidance: {
+      useWhen: [
+        "User asks what changed between two versions of text or code",
+        "User asks to compare two configuration files or JSON strings",
+        "User asks for a unified line diff or word-level diff",
+        "User asks for additions/removals summary between two documents",
+      ],
+      doNotUseWhen: [
+        "User asks for semantic grammar correction or natural language rewriting",
+        "User asks to format a single JSON file without comparing (use json_formatter_validator)",
+        "User asks to test a regex pattern against text (use regex_tester)",
+      ],
+      exampleRequests: [
+        "Compare these two configuration files and show me the differences",
+        "What changed between the original draft and the revised draft?",
+        "Generate a line diff between these two code blocks",
+      ],
+    },
   };
 
   public readonly inputSchema = TextDiffInputSchema;
@@ -145,7 +165,6 @@ export class TextDiffAnalyzerCapability
       const linesB = modified.split("\n");
       chunks = computeDiff(linesA, linesB, "\n");
 
-      // Build unified diff presentation
       const diffLines: string[] = [];
       for (const chunk of chunks) {
         const split = chunk.value.split("\n");
@@ -162,7 +181,6 @@ export class TextDiffAnalyzerCapability
       }
       diffText = diffLines.join("\n");
     } else {
-      // Word mode
       const wordsA = original.split(/(\s+)/).filter((w) => w.length > 0);
       const wordsB = modified.split(/(\s+)/).filter((w) => w.length > 0);
       chunks = computeDiff(wordsA, wordsB, "");

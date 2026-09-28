@@ -24,6 +24,12 @@ export interface CapabilityMetadata {
   externalDependencies?: string[];
   /** Hard execution timeout in milliseconds (default: 3000ms) */
   timeoutMs?: number;
+  /** Explicit AI usage guidance to maximize tool selection accuracy */
+  usageGuidance?: {
+    useWhen: string[];
+    doNotUseWhen: string[];
+    exampleRequests: string[];
+  };
 }
 
 /**

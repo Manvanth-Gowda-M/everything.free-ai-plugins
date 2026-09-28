@@ -19,12 +19,25 @@ export const HashAndEncodingOperations = [
 export const HashAndEncodingInputSchema = z.object({
   operation: z
     .enum(HashAndEncodingOperations)
-    .describe("Cryptographic hash, encoding/decoding, or UUID generation operation"),
+    .describe(
+      "Operation to perform:\n" +
+        "- 'sha256': Generates 256-bit SHA-2 cryptographic hash (hex string)\n" +
+        "- 'sha512': Generates 512-bit SHA-2 cryptographic hash (hex string)\n" +
+        "- 'base64_encode': Encodes UTF-8 string to standard Base64\n" +
+        "- 'base64_decode': Decodes standard Base64 string to UTF-8 text\n" +
+        "- 'base64url_encode': Encodes string to URL-safe Base64URL\n" +
+        "- 'base64url_decode': Decodes Base64URL string to UTF-8 text\n" +
+        "- 'hex_encode': Encodes UTF-8 string to hexadecimal representation\n" +
+        "- 'hex_decode': Decodes hexadecimal string to UTF-8 text\n" +
+        "- 'url_encode': Encodes string using standard URI percent-encoding\n" +
+        "- 'url_decode': Decodes URI percent-encoded string to UTF-8 text\n" +
+        "- 'uuid_v4': Generates a cryptographically random RFC 4122 UUID version 4"
+    ),
   input: z
     .string()
     .max(100_000, "Input text exceeds maximum size limit of 100KB")
     .optional()
-    .describe("Input string to hash or encode/decode (not required for uuid_v4)"),
+    .describe("Input string to hash or encode/decode (UTF-8). Not required when operation is 'uuid_v4'"),
 });
 
 export type HashAndEncodingInput = z.infer<typeof HashAndEncodingInputSchema>;
@@ -45,12 +58,34 @@ export class HashAndEncodingCapability
     category: "encoding",
     displayName: "Hash and Encoding Utilities",
     description:
-      "Performs secure cryptographic hashing (SHA-256, SHA-512), standard encodings (Base64, Base64URL, Hex, URL), and UUIDv4 generation. 100% local, built-in Node crypto, free, and privacy-safe.",
+      "Use when the user asks to compute SHA-256 or SHA-512 hashes, encode/decode Base64, Base64URL, Hex, URL strings, or generate UUIDs. " +
+      "Executes locally using Node.js built-in cryptography with zero external APIs and zero data persistence. " +
+      "Do NOT use for password cracking, brute forcing, or encryption with secret keys.",
     isFree: true,
     requiresExternalNetwork: false,
     privacy: "local-only",
     externalDependencies: [],
     timeoutMs: 3000,
+    usageGuidance: {
+      useWhen: [
+        "User asks for SHA-256 or SHA-512 hash of text or data",
+        "User asks to encode or decode Base64 / Base64URL text",
+        "User asks to convert text to/from Hexadecimal",
+        "User asks to URL-encode or URL-decode a string or query param",
+        "User asks to generate a random UUIDv4 identifier",
+      ],
+      doNotUseWhen: [
+        "User asks to compare two texts for differences (use text_diff_analyzer)",
+        "User asks to format JSON (use json_formatter_validator)",
+        "User asks for password cracking or brute-forcing hash inversions",
+      ],
+      exampleRequests: [
+        "Generate a SHA-256 checksum for this configuration string",
+        "Base64-encode this API payload",
+        "Decode this percent-encoded URL string",
+        "Generate a new random UUID v4",
+      ],
+    },
   };
 
   public readonly inputSchema = HashAndEncodingInputSchema;
@@ -74,7 +109,6 @@ export class HashAndEncodingCapability
     }
 
     if (!text) {
-      // Empty input handling
       if (operation === "sha256") {
         const hash = crypto.createHash("sha256").update("").digest("hex");
         return {
@@ -114,14 +148,15 @@ export class HashAndEncodingCapability
           break;
 
         case "base64_decode": {
-          // Validate base64 format
           const clean = text.trim();
           if (!/^[A-Za-z0-9+/=]+$/.test(clean) || clean.length % 4 !== 0) {
             return {
               success: false,
               error: {
                 code: "INVALID_ENCODING",
-                message: "Input is not a valid Base64 string",
+                message:
+                  `Invalid Base64 input: '${text.slice(0, 30)}${text.length > 30 ? "..." : ""}'. ` +
+                  "Base64 strings must contain only valid Base64 characters (A-Z, a-z, 0-9, +, /, =) and have a length divisible by 4.",
               },
             };
           }
@@ -140,7 +175,9 @@ export class HashAndEncodingCapability
               success: false,
               error: {
                 code: "INVALID_ENCODING",
-                message: "Input is not a valid Base64URL string",
+                message:
+                  `Invalid Base64URL input: '${text.slice(0, 30)}${text.length > 30 ? "..." : ""}'. ` +
+                  "Base64URL strings must contain only URL-safe Base64 characters (A-Z, a-z, 0-9, _, -).",
               },
             };
           }
@@ -159,7 +196,9 @@ export class HashAndEncodingCapability
               success: false,
               error: {
                 code: "INVALID_ENCODING",
-                message: "Input is not a valid Hex string (must be even length hex digits)",
+                message:
+                  `Invalid Hex input: '${text.slice(0, 30)}${text.length > 30 ? "..." : ""}'. ` +
+                  "Hex strings must contain only hexadecimal digits (0-9, a-f, A-F) and have an even number of characters.",
               },
             };
           }

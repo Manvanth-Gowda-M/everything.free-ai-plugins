@@ -5,19 +5,26 @@ export const JsonFormatterInputSchema = z.object({
   jsonString: z
     .string()
     .min(1, "Input JSON string cannot be empty")
-    .max(1_000_000, "Input JSON string exceeds maximum size limit of 1MB"),
+    .max(1_000_000, "Input JSON string exceeds maximum size limit of 1MB")
+    .describe("The raw JSON text string to format, minify, validate, or inspect"),
   action: z
     .enum(["format", "minify", "validate", "inspect"])
     .default("format")
-    .describe("Action to perform: format (pretty-print), minify, validate (check syntax), or inspect (structural analysis)"),
+    .describe(
+      "Action to perform:\n" +
+        "- 'format': Pretty-prints JSON with clean indentation\n" +
+        "- 'minify': Compresses JSON into a single compact line by removing whitespace\n" +
+        "- 'validate': Checks JSON syntax and returns exact line/column error diagnostics\n" +
+        "- 'inspect': Analyzes structural metrics (root type, key count, nesting depth, byte size)"
+    ),
   indent: z
     .number()
     .int()
-    .min(1)
-    .max(8)
+    .min(1, "Indentation must be at least 1 space")
+    .max(8, "Indentation cannot exceed 8 spaces")
     .default(2)
     .optional()
-    .describe("Indentation spaces for formatting (default: 2)"),
+    .describe("Number of spaces for pretty-print indentation when action is 'format' (default: 2, range: 1-8)"),
 });
 
 export type JsonFormatterInput = z.infer<typeof JsonFormatterInputSchema>;
@@ -68,7 +75,6 @@ function parseJsonSyntaxError(jsonStr: string, errorMsg: string) {
   let line = 1;
   let column = 1;
 
-  // Try extracting position from standard V8 error: "Unexpected token X in JSON at position 42" or "at line X column Y"
   const posMatch = errorMsg.match(/at position (\d+)/i);
   const lineColMatch = errorMsg.match(/line (\d+) column (\d+)/i);
 
@@ -82,7 +88,6 @@ function parseJsonSyntaxError(jsonStr: string, errorMsg: string) {
     column = lines[lines.length - 1].length + 1;
   }
 
-  // Create context snippet
   const allLines = jsonStr.split("\n");
   const startLine = Math.max(0, line - 2);
   const endLine = Math.min(allLines.length, line + 1);
@@ -112,10 +117,34 @@ export class JsonFormatterValidatorCapability
     category: "data",
     displayName: "JSON Formatter & Validator",
     description:
-      "Validates, formats (pretty-prints), minifies, and inspects JSON data with detailed syntax error diagnostics and structural analysis. 100% local, free, and privacy-safe.",
+      "Use when the user asks to format, pretty-print, minify, validate syntax, or structurally inspect JSON data. " +
+      "Provides exact line/column syntax error diagnostics. Processing is 100% local in-memory with zero data persistence. " +
+      "Do NOT use for comparing differences between two JSON files (use text_diff_analyzer instead).",
     isFree: true,
     requiresExternalNetwork: false,
+    privacy: "local-only",
+    externalDependencies: [],
     timeoutMs: 3000,
+    usageGuidance: {
+      useWhen: [
+        "User asks to pretty-print or indent messy/compact JSON",
+        "User asks to check if a JSON string is valid syntax",
+        "User asks to find syntax errors in JSON with line numbers",
+        "User asks to minify or compress JSON",
+        "User asks to inspect JSON structure (key counts, depth, types)",
+      ],
+      doNotUseWhen: [
+        "User asks to compare two JSON documents for changes (use text_diff_analyzer)",
+        "User asks to hash or encode a JSON string (use hash_and_encoding)",
+        "User asks to convert non-JSON formats like XML or CSV",
+      ],
+      exampleRequests: [
+        "Validate this JSON string and tell me where the syntax error is",
+        "Format this unformatted JSON with 2-space indentation",
+        "Minify this JSON payload into a single line",
+        "Inspect this JSON and report its structure and nesting depth",
+      ],
+    },
   };
 
   public readonly inputSchema = JsonFormatterInputSchema;
