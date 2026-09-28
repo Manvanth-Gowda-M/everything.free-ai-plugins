@@ -18,24 +18,13 @@ export function startHttpServer(
   const port = options.port ?? (process.env.PORT ? parseInt(process.env.PORT, 10) : 3000);
   const host = options.host ?? (process.env.HOST || "0.0.0.0");
 
-  // Create MCP Server and Streamable HTTP transport
-  const mcpServer = createMcpServer(registry);
-  const transport = new StreamableHTTPServerTransport({
-    // Keep stateless or session-based as configured
-  });
-
-  // Connect transport to MCP server
-  mcpServer.connect(transport).catch((err) => {
-    process.stderr.write(`[Everything.Free] Failed to connect MCP server to transport: ${err}\n`);
-  });
-
   const server = http.createServer(async (req, res) => {
     // Enable CORS for all AI clients and ChatGPT Developer Mode
     res.setHeader("Access-Control-Allow-Origin", "*");
-    res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+    res.setHeader("Access-Control-Allow-Methods", "GET, POST, DELETE, OPTIONS");
     res.setHeader(
       "Access-Control-Allow-Headers",
-      "Content-Type, Authorization, Mcp-Session-Id"
+      "Content-Type, Accept, Authorization, Mcp-Session-Id"
     );
 
     if (req.method === "OPTIONS") {
@@ -63,6 +52,14 @@ export function startHttpServer(
     // Streamable HTTP MCP Endpoint
     if (url.pathname === "/mcp" || url.pathname === "/") {
       try {
+        // In stateless mode, each incoming HTTP request uses a fresh transport instance
+        // connected to the MCP Server instance
+        const transport = new StreamableHTTPServerTransport({
+          sessionIdGenerator: undefined,
+        });
+
+        const mcpServer = createMcpServer(registry);
+        await mcpServer.connect(transport);
         await transport.handleRequest(req, res);
       } catch (err: unknown) {
         process.stderr.write(`[Everything.Free] Request error: ${err}\n`);
