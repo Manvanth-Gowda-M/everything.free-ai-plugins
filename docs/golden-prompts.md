@@ -164,3 +164,18 @@ id,name,age,active
 * **Tool Selected**: `url_analyzer`
 * **Arguments**: `{ "url": "https://api.quilonix.dev:8443/v1/search?query=mcp&filter=free#results" }`
 * **Outcome**: Returns structured URL components without making any network requests.
+
+---
+
+## 11. Cross-Capability Tool Disambiguation
+
+When user requests involve overlapping domains, AI assistants use explicit usage guidance to select the optimal capability:
+
+| User Scenario | Correct Tool | Incorrect Tool | Rationale |
+| :--- | :--- | :--- | :--- |
+| Compare two JSON configurations for changes | `text_diff_analyzer` | `json_formatter_validator` | User wants difference analysis, not single-file validation |
+| Convert tabular CSV rows into JSON objects | `csv_processor` | `json_formatter_validator` | Requires RFC 4180 tabular parsing into JSON records |
+| Extract claims from auth token | `jwt_inspector` | `hash_and_encoding` | Requires structured JWT payload decomposition |
+| Deconstruct URL parameters and origin | `url_analyzer` | `regex_tester` | WHATWG parser handles edge cases and encoding automatically |
+| Convert hex color and calculate luminance | `color_converter` | `unit_time_converter` | `unit_time_converter` handles physical units; `color_converter` handles color spaces |
+

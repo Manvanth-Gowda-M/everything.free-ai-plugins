@@ -12,9 +12,10 @@
 
 ## 🌟 Key Features
 
-* **₹0 / $0 Cost Guarantee**: 100% free operation, zero paid dependencies, zero required SaaS or credit cards.
+* **₹0 / $0 Cost Guarantee**: 100% free operation, zero paid dependencies, zero required SaaS or credit cards. Designed to run at ₹0 using local/self-hosted infrastructure (third-party free tiers may change).
 * **ChatGPT-Ready (Streamable HTTP)**: Implements official MCP Streamable HTTP transport over native Node.js HTTP.
 * **Local & Privacy-First**: In-memory stateless processing. User data is never stored, logged, or sent to third-party tracking services.
+* **Capability Contract v2**: Machine-readable operations, strictly enforced bounds, standardized error taxonomy, and automated contract testing.
 * **Capability Packs Taxonomy**: Clean organizational pack system without fracturing the single unified MCP server connection.
 * **Platform-Independent Engine**: Core capability engine is decoupled from protocols and ready for future Claude and Gemini adapters.
 * **Strict Safety Boundaries**: Zod schema validation, execution timeouts, and input size bounds.
