@@ -16,7 +16,7 @@
 * **ChatGPT-Ready (Streamable HTTP)**: Implements official MCP Streamable HTTP transport over native Node.js HTTP.
 * **Local & Privacy-First**: In-memory stateless processing. User data is never stored, logged, or sent to third-party tracking services.
 * **Platform-Independent Engine**: Core capability engine is decoupled from protocols and ready for future Claude and Gemini adapters.
-* **Strict Safety Boundaries**: Zod schema validation, execution timeouts, and memory bounds.
+* **Strict Safety Boundaries**: Zod schema validation, execution timeouts, and payload limits.
 
 ---
 
@@ -24,7 +24,7 @@
 
 ### `json_formatter_validator`
 * **Format**: Pretty-prints messy or minified JSON with customizable indentation.
-* **Minify**: Compresses JSON payloads.
+* **Minify**: Compresses JSON payloads into compact strings.
 * **Validate**: Validates JSON syntax and provides human-readable line/column error diagnostics with code snippets.
 * **Inspect**: Analyzes data structures, root types, nesting depths, and key/item counts.
 
@@ -56,16 +56,16 @@ npm run dev:stdio
 
 ## 🤖 Connecting to ChatGPT (Developer Mode)
 
-1. Start your local Everything.Free server:
+1. **Start the local Everything.Free server**:
    ```bash
    npm run dev
    ```
-2. Expose the server via a free HTTPS tunnel (e.g., Cloudflare Tunnel):
+2. **Expose the server via a free HTTPS tunnel** (e.g., Cloudflare Quick Tunnel - no account/credit card needed):
    ```bash
    npx cloudflared tunnel --url http://localhost:3000
    ```
-3. In ChatGPT:
-   * Navigate to **Settings** → **Security & Login** → Enable **Developer mode**.
+3. **In ChatGPT**:
+   * Navigate to **Settings** → **Security & Login** (or **Developer Settings**) → Enable **Developer mode**.
    * Navigate to **Apps / Plugin Settings** → **Add App**.
    * Enter your HTTPS tunnel URL: `https://<your-tunnel-url>/mcp`.
    * Set Authentication to **No Auth**.
@@ -95,10 +95,12 @@ npm run build
 
 Comprehensive architectural blueprints and specifications are available in the [`docs/`](docs/) directory:
 * [Architecture Overview](docs/architecture/overview.md)
-* [ChatGPT Integration & MCP Transports](docs/architecture/chatgpt-integration.md)
+* [ChatGPT Integration & Testing Guide](docs/architecture/chatgpt-integration.md)
+* [Free Infrastructure Strategy & Classification](docs/architecture/free-infrastructure.md)
 * [Capability System Architecture](docs/architecture/capability-system.md)
 * [Security Policies](docs/architecture/security.md)
 * [Privacy Model](docs/architecture/privacy.md)
+* [Developer Guide (Adding Capabilities)](docs/developer-guide.md)
 
 ---
 

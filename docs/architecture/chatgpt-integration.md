@@ -1,4 +1,4 @@
-# ChatGPT Integration Architecture
+# ChatGPT Integration Architecture & Testing Guide
 
 ## 1. Overview & Official MCP Transport
 
@@ -6,60 +6,107 @@ OpenAI connects ChatGPT to external developer tools using the **Model Context Pr
 
 ### Transport Strategy
 1. **Primary & Production: Streamable HTTP (`/mcp`)**
-   * ChatGPT sends JSON-RPC requests via `POST /mcp` and handles server-to-client streaming via `GET /mcp`.
-   * Standardized in `@modelcontextprotocol/sdk` via `StreamableHTTPServerTransport`.
-   * Hosted using native Node.js HTTP (`node:http`) without third-party frameworks like Express or Hono.
+   * ChatGPT sends JSON-RPC requests via `POST /mcp` with `Accept: application/json, text/event-stream`.
+   * Hosted using native Node.js HTTP (`node:http`) with `@modelcontextprotocol/sdk`.
+   * Responses are delivered in standard JSON or Streamable SSE message events.
 2. **Local & Testing: Stdio Transport**
-   * Uses standard input/output (`process.stdin` / `process.stdout`) for zero-network testing with MCP Inspector (`@modelcontextprotocol/inspector`) and local testing.
-3. **Legacy SSE Policy**:
-   * Legacy dual-endpoint HTTP+SSE is deliberately omitted to keep the codebase minimal, modern, and aligned with the current official MCP standard.
+   * Uses standard I/O (`process.stdin` / `process.stdout`) for zero-network testing with MCP Inspector (`@modelcontextprotocol/inspector`).
 
 ---
 
-## 2. Endpoints & Request Lifecycle
+## 2. Real ChatGPT End-to-End Connection Guide
 
-### Endpoints (Native `node:http`)
-- `GET /health` — Returns JSON `{ "status": "ok", "service": "everything-free-ai-plugins" }`.
-- `POST /mcp` — Handles incoming MCP JSON-RPC 2.0 messages from ChatGPT.
-- `GET /mcp` — Handles MCP streaming connections.
-
-### ChatGPT Request Lifecycle Sequence:
-```mermaid
-sequenceDiagram
-    autonumber
-    actor User
-    participant ChatGPT as ChatGPT (Developer Mode)
-    participant HttpServer as Native Node.js Server
-    participant MCPAdapter as MCP Adapter (Streamable HTTP)
-    participant Engine as Capability Engine
-    participant Tool as json_formatter_validator
-
-    User->>ChatGPT: "Format and validate this JSON"
-    ChatGPT->>HttpServer: POST /mcp (tools/call: "json_formatter_validator", args)
-    HttpServer->>MCPAdapter: Handle Streamable HTTP request
-    MCPAdapter->>Engine: execute("json_formatter_validator", args)
-    Engine->>Engine: Parse & validate args with Zod
-    Engine->>Tool: execute(validatedArgs)
-    Tool-->>Engine: Formatted result & diagnostics
-    Engine-->>MCPAdapter: CapabilityResult
-    MCPAdapter-->>HttpServer: MCP JSON-RPC Response
-    HttpServer-->>ChatGPT: 200 OK (content: [{type: "text", text: "..."}])
-    ChatGPT-->>User: Clear, formatted response
+### Step 1: Start the Local MCP Server
+```bash
+npm run dev
 ```
+* The server starts listening on `http://localhost:3000/mcp`.
+* You can verify the health endpoint at `http://localhost:3000/health`.
+
+### Step 2: Expose an HTTPS Tunnel (₹0, No Account Needed)
+Open a separate terminal window and run:
+```bash
+npx cloudflared tunnel --url http://localhost:3000
+```
+Cloudflare Quick Tunnels will output an ephemeral public HTTPS URL, for example:
+`https://random-subdomain.trycloudflare.com`
+
+Your MCP endpoint is:
+`https://random-subdomain.trycloudflare.com/mcp`
+
+### Step 3: Configure ChatGPT Developer Mode
+1. In ChatGPT Web, open **Settings** (bottom left profile icon).
+2. Go to **Security & login** (or **Developer settings**).
+3. Toggle **Developer mode** to **ON**.
+4. Under **Apps / Plugins** settings, click **Add App** / **Create Developer App**.
+5. Enter the MCP Server URL:
+   `https://random-subdomain.trycloudflare.com/mcp`
+6. Authentication: Select **No Authentication** (or No Auth).
+7. Save and enable the app.
 
 ---
 
-## 3. ChatGPT Setup & ₹0 Development / Deployment
+## 3. Real ChatGPT Test Cases & Verification
 
-### Local Development (₹0)
-1. Start local server: `npm run dev` (listening on `http://localhost:3000`).
-2. Expose via free tunnel (e.g. Cloudflare Quick Tunnels: `npx cloudflared tunnel --url http://localhost:3000` or ngrok free).
-3. In ChatGPT:
-   * Go to **Settings → Security & Login → Developer mode** (toggle ON).
-   * Go to **Apps / Plugins Settings → Add App**.
-   * Enter your HTTPS tunnel URL: `https://<your-tunnel-url>/mcp`.
-   * Select **No Authentication**.
-   * Test tool discovery and invocation in a chat.
+Once connected, test the following prompt interactions in a ChatGPT session:
 
-### Production Deployment (₹0)
-* Deploy to genuinely free hosting platforms (e.g., Render Free Web Service, Fly.io free tier, or Koyeb free tier) with zero credit-card requirement, or run as a free self-hosted container.
+### Test Case 1: Valid JSON Validation
+* **Prompt**:
+  > Use Everything.Free to validate this JSON:
+  > ```json
+  > {
+  >   "name": "Everything.Free",
+  >   "free": true
+  > }
+  > ```
+* **ChatGPT Action**: Invokes `json_formatter_validator` with `action: "validate"`.
+* **Expected Result**: Confirms that the JSON is syntactically valid.
+
+---
+
+### Test Case 2: Pretty-Print Formatting
+* **Prompt**:
+  > Use Everything.Free to format this JSON:
+  > `{"name":"Everything.Free","version":1}`
+* **ChatGPT Action**: Invokes `json_formatter_validator` with `action: "format"`, `indent: 2`.
+* **Expected Result**: Returns pretty-printed indented JSON.
+
+---
+
+### Test Case 3: Minification
+* **Prompt**:
+  > Use Everything.Free to minify this JSON:
+  > ```json
+  > {
+  >   "name": "Everything.Free",
+  >   "version": 1
+  > }
+  > ```
+* **ChatGPT Action**: Invokes `json_formatter_validator` with `action: "minify"`.
+* **Expected Result**: Returns compact minified JSON string `{"name":"Everything.Free","version":1}`.
+
+---
+
+### Test Case 4: Structure & Metrics Inspection
+* **Prompt**:
+  > Use Everything.Free to inspect this JSON and tell me its structure:
+  > `{"users": [{"id": 1, "role": "admin"}], "active": true}`
+* **ChatGPT Action**: Invokes `json_formatter_validator` with `action: "inspect"`.
+* **Expected Result**: Returns root type (`object`), nesting depth (3), and key count (2).
+
+---
+
+### Test Case 5: Syntax Error Diagnostics
+* **Prompt**:
+  > Use Everything.Free to validate this JSON:
+  > `{"name": "broken", "value": }`
+* **ChatGPT Action**: Invokes `json_formatter_validator` with `action: "validate"`.
+* **Expected Result**: Returns `valid: false` with precise line/column diagnosis and context snippet. ChatGPT clearly explains the syntax issue to the user without server error.
+
+---
+
+## 4. Zero-Retention & Privacy Verification
+
+* **Ephemeral Buffers**: Data passed into `json_formatter_validator` exists only in transient Node.js memory during the synchronous parse/format operation.
+* **No Disk Writes**: No payload files, logs, or databases are created.
+* **No Content Logging**: Server logs record only request timestamps and endpoint hits, strictly omitting payload data.
