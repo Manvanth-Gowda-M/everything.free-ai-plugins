@@ -1,0 +1,51 @@
+{
+  "name": "everything.free-ai-plugins",
+  "version": "0.1.0",
+  "description": "Open-source, 100% free AI capability platform and MCP server for ChatGPT and AI assistants.",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "bin": {
+    "everything-free": "./dist/server.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsx watch src/server.ts",
+    "dev:stdio": "tsx src/server.ts --stdio",
+    "start": "node dist/server.js",
+    "start:stdio": "node dist/server.js --stdio",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint \"src/**/*.ts\" \"tests/**/*.ts\"",
+    "format": "prettier --write \"src/**/*.ts\" \"tests/**/*.ts\" \"docs/**/*.md\""
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "chatgpt",
+    "ai-plugin",
+    "free-ai",
+    "tools",
+    "quilonix"
+  ],
+  "author": "Quilonix",
+  "license": "MIT",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.6.1",
+    "zod": "^3.24.2"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.9",
+    "@typescript-eslint/eslint-plugin": "^8.26.0",
+    "@typescript-eslint/parser": "^8.26.0",
+    "eslint": "^9.21.0",
+    "prettier": "^3.5.3",
+    "tsx": "^4.19.3",
+    "typescript": "^5.8.2",
+    "vitest": "^3.0.7"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}
