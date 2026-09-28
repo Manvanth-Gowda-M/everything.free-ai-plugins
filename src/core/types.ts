@@ -9,15 +9,19 @@ export interface CapabilityMetadata {
   /** Semantic version string */
   version: string;
   /** High-level category */
-  category: "data" | "text" | "dev" | "math";
+  category: "data" | "text" | "encoding" | "developer" | "utility";
   /** Human-readable display name */
   displayName: string;
   /** Detailed description exposed to AI assistants for tool discovery */
   description: string;
   /** Invariant: Everything.Free capabilities are always 100% free */
   isFree: true;
-  /** Whether the capability requires external network access (false for MVP) */
+  /** Whether the capability requires external network access (false for local capabilities) */
   requiresExternalNetwork: false;
+  /** Privacy classification (always 'local-only' for local capabilities) */
+  privacy?: "local-only";
+  /** External dependencies (empty array for built-in capabilities) */
+  externalDependencies?: string[];
   /** Hard execution timeout in milliseconds (default: 3000ms) */
   timeoutMs?: number;
 }

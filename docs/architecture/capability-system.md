@@ -12,7 +12,19 @@ Each **Capability** represents a discrete, self-contained, 100% free computation
 
 ---
 
-## 2. The Capability Contract (`CapabilityDefinition`)
+## 2. Standardized Category Vocabulary
+
+The Capability Engine defines a compact set of standardized categories:
+
+* **`data`**: Data formatting, validation, JSON, tabular transformations.
+* **`text`**: Text diffing, text normalization, markdown utilities.
+* **`encoding`**: Cryptographic hashing (SHA-256/512), encodings (Base64, Hex, URL), UUID generation.
+* **`utility`**: Physical unit conversions (length, mass, volume, speed, temp) and date/timezone calculations.
+* **`developer`**: Regex testing, code analysis, debugging utilities.
+
+---
+
+## 3. The Capability Contract (`CapabilityDefinition`)
 
 ```typescript
 import { z } from "zod";
@@ -20,11 +32,13 @@ import { z } from "zod";
 export interface CapabilityMetadata {
   name: string;
   version: string;
-  category: "data" | "text" | "dev";
+  category: "data" | "text" | "encoding" | "developer" | "utility";
   displayName: string;
   description: string;
   isFree: true; // Hard architectural invariant
-  requiresExternalNetwork: false; // MVP is 100% local
+  requiresExternalNetwork: false; // Always false for local capabilities
+  privacy?: "local-only";
+  externalDependencies?: string[];
   timeoutMs?: number;
 }
 
@@ -43,55 +57,20 @@ export interface CapabilityResult<TOutput = unknown> {
 
 export interface Capability<
   TInputSchema extends z.ZodTypeAny = z.ZodTypeAny,
-  TOutputSchema extends z.ZodTypeAny = z.ZodTypeAny
+  TOutput = unknown
 > {
-  metadata: CapabilityMetadata;
-  inputSchema: TInputSchema;
-  outputSchema?: TOutputSchema;
-  execute(
-    input: z.infer<TInputSchema>
-  ): Promise<CapabilityResult<z.infer<TOutputSchema>>>;
+  readonly metadata: CapabilityMetadata;
+  readonly inputSchema: TInputSchema;
+  execute(input: z.infer<TInputSchema>): Promise<CapabilityResult<TOutput>>;
 }
 ```
 
 ---
 
-## 3. MVP First Vertical Slice: `json_formatter_validator`
+## 4. Current Built-in Capabilities Suite
 
-For the initial MVP, exactly **one** capability is registered: `json_formatter_validator`.
-
-### Contract:
-* **Input**:
-  - `jsonString` (string, max 1MB): The raw JSON text to process.
-  - `action` (enum: `"format"` | `"minify"` | `"validate"` | `"inspect"`): Desired operation.
-  - `indent` (number, 1-8, optional, default: 2): Indentation spacing for formatted output.
-* **Output**:
-  - `valid` (boolean): Whether input is valid JSON.
-  - `formatted` (string, optional): Formatted / minified JSON output.
-  - `stats` (object, optional): Key counts, byte size, nesting depth, top-level type.
-  - `error` (object, optional): Line number, column number, and snippet pointing to syntax errors.
-
----
-
-## 4. Capability Lifecycle & Platform Independence
-
-```
-   ┌────────────────────────────────────────────────┐
-   │         Capability: json_formatter_validator   │
-   │           (Pure logic + Zod schema)            │
-   └───────────────────────┬────────────────────────┘
-                           │
-                           ▼
-   ┌────────────────────────────────────────────────┐
-   │         CapabilityRegistry (In-Memory)         │
-   │  - register(capability)                        │
-   │  - get(name) / list()                          │
-   └───────┬────────────────────────────────┬───────┘
-           │                                │
-           ▼                                ▼
-┌──────────────────────┐        ┌──────────────────────┐
-│  MCP Adapter (Live)  │        │ Future Claude/Gemini │
-│ - tools/list mapped  │        │ - Platform adapters  │
-│ - tools/call routed  │        │   reusing same core  │
-└──────────────────────┘        └──────────────────────┘
-```
+1. **`json_formatter_validator`** (`data`): Format, minify, validate, and inspect JSON payloads with line/column syntax diagnostics.
+2. **`text_diff_analyzer`** (`text`): Line and word diff analysis with LCS algorithms.
+3. **`hash_and_encoding`** (`encoding`): Cryptographic hashing (SHA-256, SHA-512), Base64/Base64URL, Hex, URL encoding, and UUIDv4 generation.
+4. **`unit_time_converter`** (`utility`): Physical unit conversion across 5 families and ISO date/Unix timestamp/timezone transformations.
+5. **`regex_tester`** (`developer`): Regular expression matching, testing, and capture group extraction with ReDoS protection.
