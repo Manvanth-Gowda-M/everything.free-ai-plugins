@@ -148,6 +148,29 @@ export class UnitTimeConverterCapability
     privacy: "local-only",
     externalDependencies: [],
     timeoutMs: 3000,
+    operations: [
+      {
+        name: "unit",
+        description: "Converts physical measurement units across length, mass, temperature, volume, and speed",
+        inputDescription: "mode: 'unit', value: number, fromUnit: string, toUnit: string",
+        outputDescription: "{ mode: 'unit', unitResult: { fromValue, fromUnit, toValue, toUnit, category, formula } }",
+      },
+      {
+        name: "time",
+        description: "Converts Unix timestamps, ISO date strings, and target IANA timezones",
+        inputDescription: "mode: 'time', timeInput: string | number, targetTimezone?: string",
+        outputDescription: "{ mode: 'time', timeResult: { unixTimestamp, iso, utc, targetTimezone, formattedTargetTime } }",
+      },
+    ],
+    limits: {
+      timeoutMs: 3000,
+    },
+    security: {
+      offlineOnly: true,
+      zeroRetention: true,
+      noExternalCalls: true,
+      notes: "Deterministic mathematical unit and calendar calculations using native Intl APIs",
+    },
     usageGuidance: {
       useWhen: [
         "User asks to convert miles to kilometers, meters to feet, etc.",

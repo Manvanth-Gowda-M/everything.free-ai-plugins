@@ -62,6 +62,25 @@ export class UrlAnalyzerCapability
     privacy: "local-only",
     externalDependencies: [],
     timeoutMs: 2000,
+    operations: [
+      {
+        name: "analyze",
+        description: "Decomposes URL into protocol, host, port, path, query params, hash, and origin using WHATWG rules",
+        inputDescription: "url: string",
+        outputDescription: "{ url: string, components: UrlComponents }",
+      },
+    ],
+    limits: {
+      maxTextLength: 4096,
+      maxInputBytes: 4096,
+      timeoutMs: 2000,
+    },
+    security: {
+      offlineOnly: true,
+      zeroRetention: true,
+      noExternalCalls: true,
+      notes: "Strict offline parser; zero network requests, zero DNS resolution, anti-SSRF guarantee",
+    },
     usageGuidance: {
       useWhen: [
         "User asks to inspect the components of a URL (protocol, host, port, path, query params)",

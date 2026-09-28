@@ -63,6 +63,25 @@ export class JwtInspectorCapability
     privacy: "local-only",
     externalDependencies: [],
     timeoutMs: 2000,
+    operations: [
+      {
+        name: "inspect",
+        description: "Decodes JWT header, payload claims, timestamps, and calculates expiration status",
+        inputDescription: "token: string (format: 'header.payload.signature')",
+        outputDescription: "{ validStructure, header, payload, subject, issuer, audience, timestamps, signaturePreview, verificationNotice }",
+      },
+    ],
+    limits: {
+      maxTextLength: 10_000,
+      maxInputBytes: 10_000,
+      timeoutMs: 2000,
+    },
+    security: {
+      offlineOnly: true,
+      zeroRetention: true,
+      noExternalCalls: true,
+      notes: "Strict structural decoding without signature verification; zero token logging or persistence",
+    },
     usageGuidance: {
       useWhen: [
         "User asks to inspect or decode a JWT string",

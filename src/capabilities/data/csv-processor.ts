@@ -187,6 +187,57 @@ export class CsvProcessorCapability
     privacy: "local-only",
     externalDependencies: [],
     timeoutMs: 3000,
+    operations: [
+      {
+        name: "parse",
+        description: "Parses CSV text into structured headers and raw 2D array of rows",
+        inputDescription: "csvText, delimiter (default ','), hasHeader (default true)",
+        outputDescription: "{ headers, rows, rowCount }",
+      },
+      {
+        name: "inspect",
+        description: "Performs structural diagnostic analysis (row/col count, header list, empty cells, inferred types)",
+        inputDescription: "csvText, delimiter (default ',')",
+        outputDescription: "{ stats: { rowCount, columnCount, headers, emptyCellsCount, columnTypes } }",
+      },
+      {
+        name: "filter",
+        description: "Filters CSV rows using a safe declarative condition (column, operator, value)",
+        inputDescription: "csvText, filterColumn, filterOperator, filterValue",
+        outputDescription: "{ headers, rows, rowCount }",
+      },
+      {
+        name: "sort",
+        description: "Sorts CSV rows by specified column in ascending or descending order",
+        inputDescription: "csvText, sortColumn, sortDirection ('asc' | 'desc')",
+        outputDescription: "{ headers, rows, rowCount }",
+      },
+      {
+        name: "select_columns",
+        description: "Projects CSV to retain only specified columns",
+        inputDescription: "csvText, selectedColumns: string[]",
+        outputDescription: "{ headers, rows, rowCount, csvOutput }",
+      },
+      {
+        name: "to_json",
+        description: "Transforms CSV records into an array of JSON objects keyed by headers",
+        inputDescription: "csvText, hasHeader (default true)",
+        outputDescription: "{ jsonData: Array<Record<string, unknown>> }",
+      },
+    ],
+    limits: {
+      maxTextLength: 500_000,
+      maxInputBytes: 500_000,
+      maxRows: 5000,
+      maxColumns: 100,
+      timeoutMs: 3000,
+    },
+    security: {
+      offlineOnly: true,
+      zeroRetention: true,
+      noExternalCalls: true,
+      notes: "Deterministic in-memory CSV parser; formulas preserved as raw text without execution",
+    },
     usageGuidance: {
       useWhen: [
         "User asks to parse a CSV text string into structured rows",

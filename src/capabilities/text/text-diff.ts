@@ -111,6 +111,25 @@ export class TextDiffAnalyzerCapability
     privacy: "local-only",
     externalDependencies: [],
     timeoutMs: 3000,
+    operations: [
+      {
+        name: "diff",
+        description: "Computes structured diff (line or word granularity) between original and modified text",
+        inputDescription: "original, modified, mode ('line' | 'word')",
+        outputDescription: "{ identical: boolean, addedCount, removedCount, diff: string }",
+      },
+    ],
+    limits: {
+      maxTextLength: 100_000,
+      maxInputBytes: 200_000,
+      timeoutMs: 3000,
+    },
+    security: {
+      offlineOnly: true,
+      zeroRetention: true,
+      noExternalCalls: true,
+      notes: "Bounded LCS algorithm; 100% in-memory computation",
+    },
     usageGuidance: {
       useWhen: [
         "User asks what changed between two versions of text or code",

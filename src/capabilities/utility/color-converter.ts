@@ -244,6 +244,24 @@ export class ColorConverterCapability
     privacy: "local-only",
     externalDependencies: [],
     timeoutMs: 2000,
+    operations: [
+      {
+        name: "convert",
+        description: "Converts CSS colors across HEX, RGB, RGBA, HSL, HSLA, HSV, HWB, and OKLCH color spaces",
+        inputDescription: "color: string (e.g., '#D4AF37', 'rgb(212, 175, 55)')",
+        outputDescription: "{ valid, formats: { hex, rgb, rgba, hsl, hsla, hsv, hwb, oklch }, channels, metrics }",
+      },
+    ],
+    limits: {
+      maxTextLength: 100,
+      timeoutMs: 2000,
+    },
+    security: {
+      offlineOnly: true,
+      zeroRetention: true,
+      noExternalCalls: true,
+      notes: "Strict mathematical CSS color model transformations; 100% offline",
+    },
     usageGuidance: {
       useWhen: [
         "User asks to convert HEX color to RGB or HSL",

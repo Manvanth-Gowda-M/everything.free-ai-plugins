@@ -67,6 +67,85 @@ export class HashAndEncodingCapability
     privacy: "local-only",
     externalDependencies: [],
     timeoutMs: 3000,
+    operations: [
+      {
+        name: "sha256",
+        description: "Computes cryptographic SHA-256 hash in hex or base64 format",
+        inputDescription: "input: string, outputFormat?: 'hex' | 'base64'",
+        outputDescription: "{ operation: 'sha256', output: string, byteLength: number }",
+      },
+      {
+        name: "sha512",
+        description: "Computes cryptographic SHA-512 hash in hex or base64 format",
+        inputDescription: "input: string, outputFormat?: 'hex' | 'base64'",
+        outputDescription: "{ operation: 'sha512', output: string, byteLength: number }",
+      },
+      {
+        name: "base64_encode",
+        description: "Encodes UTF-8 string into standard Base64 format",
+        inputDescription: "input: string",
+        outputDescription: "{ operation: 'base64_encode', output: string }",
+      },
+      {
+        name: "base64_decode",
+        description: "Decodes standard Base64 string into UTF-8 text",
+        inputDescription: "input: string",
+        outputDescription: "{ operation: 'base64_decode', output: string }",
+      },
+      {
+        name: "base64url_encode",
+        description: "Encodes UTF-8 string into URL-safe Base64URL format without padding",
+        inputDescription: "input: string",
+        outputDescription: "{ operation: 'base64url_encode', output: string }",
+      },
+      {
+        name: "base64url_decode",
+        description: "Decodes URL-safe Base64URL string into UTF-8 text",
+        inputDescription: "input: string",
+        outputDescription: "{ operation: 'base64url_decode', output: string }",
+      },
+      {
+        name: "hex_encode",
+        description: "Encodes UTF-8 string into hexadecimal character sequence",
+        inputDescription: "input: string",
+        outputDescription: "{ operation: 'hex_encode', output: string }",
+      },
+      {
+        name: "hex_decode",
+        description: "Decodes hexadecimal character sequence into UTF-8 text",
+        inputDescription: "input: string",
+        outputDescription: "{ operation: 'hex_decode', output: string }",
+      },
+      {
+        name: "url_encode",
+        description: "Percent-encodes URI characters in string",
+        inputDescription: "input: string",
+        outputDescription: "{ operation: 'url_encode', output: string }",
+      },
+      {
+        name: "url_decode",
+        description: "Decodes percent-encoded URI string",
+        inputDescription: "input: string",
+        outputDescription: "{ operation: 'url_decode', output: string }",
+      },
+      {
+        name: "uuid_v4",
+        description: "Generates a cryptographically random UUIDv4 string using native node:crypto",
+        inputDescription: "None required",
+        outputDescription: "{ operation: 'uuid_v4', output: string }",
+      },
+    ],
+    limits: {
+      maxTextLength: 500_000,
+      maxInputBytes: 500_000,
+      timeoutMs: 3000,
+    },
+    security: {
+      offlineOnly: true,
+      zeroRetention: true,
+      noExternalCalls: true,
+      notes: "Native Node.js crypto module; pure in-memory transformations",
+    },
     usageGuidance: {
       useWhen: [
         "User asks for SHA-256 or SHA-512 hash of text or data",

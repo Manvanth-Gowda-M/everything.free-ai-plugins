@@ -126,6 +126,43 @@ export class JsonFormatterValidatorCapability
     privacy: "local-only",
     externalDependencies: [],
     timeoutMs: 3000,
+    operations: [
+      {
+        name: "format",
+        description: "Pretty-prints JSON with customizable indentation (1-8 spaces)",
+        inputDescription: "jsonString, indent (optional, default 2)",
+        outputDescription: "Formatted multiline JSON string with indentation",
+      },
+      {
+        name: "minify",
+        description: "Compresses JSON into a single compact line without extra whitespace",
+        inputDescription: "jsonString",
+        outputDescription: "Minified compact JSON string",
+      },
+      {
+        name: "validate",
+        description: "Checks JSON syntax and returns line/column error diagnostics if invalid",
+        inputDescription: "jsonString",
+        outputDescription: "{ valid: boolean, syntaxError?: { line, column, message, snippet } }",
+      },
+      {
+        name: "inspect",
+        description: "Performs structural inspection returning key counts, max depth, root type, and byte size",
+        inputDescription: "jsonString",
+        outputDescription: "Structural metadata including maxDepth, keyCount, isArray, and byteSize",
+      },
+    ],
+    limits: {
+      maxTextLength: 1_000_000,
+      maxInputBytes: 1_000_000,
+      timeoutMs: 3000,
+    },
+    security: {
+      offlineOnly: true,
+      zeroRetention: true,
+      noExternalCalls: true,
+      notes: "In-memory JSON parser with zero disk persistence and zero external calls",
+    },
     usageGuidance: {
       useWhen: [
         "User asks to pretty-print or indent messy/compact JSON",

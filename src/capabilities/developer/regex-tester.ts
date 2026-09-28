@@ -64,6 +64,38 @@ export class RegexTesterCapability
     privacy: "local-only",
     externalDependencies: [],
     timeoutMs: 2000,
+    operations: [
+      {
+        name: "test",
+        description: "Tests whether a text string satisfies a regular expression pattern",
+        inputDescription: "pattern: string, text: string, flags?: string",
+        outputDescription: "{ matched: boolean, operation: 'test' }",
+      },
+      {
+        name: "match",
+        description: "Extracts all matching substrings and named/positional capture groups",
+        inputDescription: "pattern: string, text: string, flags?: string",
+        outputDescription: "{ matched: boolean, matches: string[], groups: Array<Record<string, string>>, matchCount: number }",
+      },
+      {
+        name: "replace",
+        description: "Performs regex string replacement",
+        inputDescription: "pattern: string, text: string, replacement: string, flags?: string",
+        outputDescription: "{ replacedText: string, replacementCount: number }",
+      },
+    ],
+    limits: {
+      maxPatternLength: 1000,
+      maxTextLength: 100_000,
+      maxInputBytes: 100_000,
+      timeoutMs: 2000,
+    },
+    security: {
+      offlineOnly: true,
+      zeroRetention: true,
+      noExternalCalls: true,
+      notes: "Strict pattern length limits and 2000ms timeout guard against ReDoS attacks",
+    },
     usageGuidance: {
       useWhen: [
         "User asks to test if a string matches a regex pattern",

@@ -93,6 +93,55 @@ export class MarkdownProcessorCapability
     privacy: "local-only",
     externalDependencies: [],
     timeoutMs: 3000,
+    operations: [
+      {
+        name: "inspect",
+        description: "Reports document metrics (headings, links, code blocks, paragraphs, lists, words, lines)",
+        inputDescription: "markdownText",
+        outputDescription: "{ stats: { headingCount, linkCount, codeBlockCount, paragraphCount, listCount, wordCount, lineCount } }",
+      },
+      {
+        name: "headings",
+        description: "Extracts full heading hierarchy (H1-H6) with levels, line numbers, and anchor slugs",
+        inputDescription: "markdownText",
+        outputDescription: "{ headings: [{ level, text, id, line }] }",
+      },
+      {
+        name: "links",
+        description: "Extracts all markdown links and images with target URLs",
+        inputDescription: "markdownText",
+        outputDescription: "{ links: [{ text, url, isImage, line }] }",
+      },
+      {
+        name: "code_blocks",
+        description: "Extracts fenced code blocks with language identifiers and line numbers",
+        inputDescription: "markdownText",
+        outputDescription: "{ codeBlocks: [{ language, code, lineCount, line }] }",
+      },
+      {
+        name: "toc",
+        description: "Generates a clickable markdown Table of Contents from headings",
+        inputDescription: "markdownText",
+        outputDescription: "{ toc: string }",
+      },
+      {
+        name: "normalize",
+        description: "Normalizes heading spacing, bullet styles, and trailing whitespace",
+        inputDescription: "markdownText",
+        outputDescription: "{ normalizedMarkdown: string }",
+      },
+    ],
+    limits: {
+      maxTextLength: 100_000,
+      maxInputBytes: 100_000,
+      timeoutMs: 3000,
+    },
+    security: {
+      offlineOnly: true,
+      zeroRetention: true,
+      noExternalCalls: true,
+      notes: "Static AST parser; raw HTML treated as plain text strings without rendering",
+    },
     usageGuidance: {
       useWhen: [
         "User asks to extract all headings from a Markdown document",
