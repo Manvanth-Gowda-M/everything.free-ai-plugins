@@ -48,13 +48,17 @@ describe("Streamable HTTP MCP Integration (Real HTTP Wire Tests)", () => {
     });
   });
 
-  it("should respond to GET /health with 10 capabilities", async () => {
+  it("should respond to GET /health with safe diagnostics and 10 capabilities", async () => {
     const res = await fetch(`${BASE_URL}/health`);
     expect(res.status).toBe(200);
     const data = await res.json();
     expect(data.status).toBe("ok");
     expect(data.service).toBe("everything-free-ai-plugins");
+    expect(data.version).toBe("0.1.0");
     expect(data.capabilitiesCount).toBe(10);
+    expect(data.packsCount).toBe(5);
+    expect(data.transports).toEqual(["streamable-http", "stdio"]);
+    expect(data.timestamp).toBeDefined();
   });
 
   it("should respond 404 for unknown endpoints", async () => {

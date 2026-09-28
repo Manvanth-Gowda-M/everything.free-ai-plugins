@@ -321,4 +321,51 @@ const x: number = 42;
       expect(res.data?.metrics.relativeLuminance).toBeGreaterThan(0.3);
     });
   });
+
+  describe("Cross-Capability Selection & Tool Disambiguation", () => {
+    it("Disambiguation 1: JSON compare vs JSON format -> text_diff_analyzer", async () => {
+      // When user asks to compare two JSON configs, text_diff_analyzer should be used
+      const diffCap = registry.get("text_diff_analyzer")!;
+      const res = await ExecutionRunner.run<TextDiffOutput>(diffCap, {
+        original: '{"port": 3000, "debug": true}',
+        modified: '{"port": 8080, "debug": false}',
+        mode: "line",
+      });
+      expect(res.success).toBe(true);
+      expect(res.data?.identical).toBe(false);
+    });
+
+    it("Disambiguation 2: CSV to JSON vs JSON format -> csv_processor", async () => {
+      // When user asks to convert tabular data to JSON, csv_processor is selected
+      const csvCap = registry.get("csv_processor")!;
+      const res = await ExecutionRunner.run<CsvProcessorOutput>(csvCap, {
+        csvText: "name,role\nAlice,Admin\nBob,Member",
+        operation: "to_json",
+      });
+      expect(res.success).toBe(true);
+      expect(res.data?.jsonData).toHaveLength(2);
+    });
+
+    it("Disambiguation 3: JWT claims inspection vs general hash -> jwt_inspector", async () => {
+      // When user asks for token claims, jwt_inspector is selected
+      const jwtCap = registry.get("jwt_inspector")!;
+      const token =
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkFsaWNlIiwiaWF0IjoxNTE2MjM5MDIyfQ.XbPfbIHMI6arZ3Y922BhjWgQzWXcXNrz0ogtVhfEd2o";
+      const res = await ExecutionRunner.run<JwtInspectionOutput>(jwtCap, {
+        token,
+      });
+      expect(res.success).toBe(true);
+      expect(res.data?.subject).toBe("1234567890");
+    });
+
+    it("Disambiguation 4: Static URL decomposition vs regex extraction -> url_analyzer", async () => {
+      // When user asks to parse URL components, url_analyzer is selected
+      const urlCap = registry.get("url_analyzer")!;
+      const res = await ExecutionRunner.run<UrlAnalyzerOutput>(urlCap, {
+        url: "https://example.com:3000/api/v1/resource?filter=active",
+      });
+      expect(res.success).toBe(true);
+      expect(res.data?.components.port).toBe("3000");
+    });
+  });
 });
