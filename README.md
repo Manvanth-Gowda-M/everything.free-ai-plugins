@@ -1,6 +1,6 @@
 # Everything.Free AI Plugins
 
-> **One Everything.Free connection → Many useful, privacy-conscious, 100% free capabilities for AI assistants.**
+> **One Everything.Free connection → 10 useful, privacy-conscious, 100% free capabilities for AI assistants.**
 
 [![CI](https://github.com/Quilonix/everything.free-ai-plugins/actions/workflows/ci.yml/badge.svg)](https://github.com/Quilonix/everything.free-ai-plugins/actions)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
@@ -15,22 +15,54 @@
 * **₹0 / $0 Cost Guarantee**: 100% free operation, zero paid dependencies, zero required SaaS or credit cards.
 * **ChatGPT-Ready (Streamable HTTP)**: Implements official MCP Streamable HTTP transport over native Node.js HTTP.
 * **Local & Privacy-First**: In-memory stateless processing. User data is never stored, logged, or sent to third-party tracking services.
+* **Capability Packs Taxonomy**: Clean organizational pack system without fracturing the single unified MCP server connection.
 * **Platform-Independent Engine**: Core capability engine is decoupled from protocols and ready for future Claude and Gemini adapters.
 * **Strict Safety Boundaries**: Zod schema validation, execution timeouts, and input size bounds.
 
 ---
 
-## 📦 Built-in Capabilities Catalog
+## 📦 Capability Packs & Catalog
 
-Everything.Free currently exposes **5 core local capabilities**:
+Everything.Free organizes capabilities into **5 logical Capability Packs** accessible via **1 unified MCP endpoint**:
 
-| Capability | Category | Description | Docs |
+```text
+Everything.Free
+│
+├── Data Pack
+│   ├── json_formatter_validator
+│   └── csv_processor
+│
+├── Text Pack
+│   ├── text_diff_analyzer
+│   └── markdown_processor
+│
+├── Encoding Pack
+│   └── hash_and_encoding
+│
+├── Utility Pack
+│   ├── unit_time_converter
+│   └── color_converter
+│
+└── Developer Pack
+    ├── regex_tester
+    ├── jwt_inspector
+    └── url_analyzer
+```
+
+### Full Capabilities Table
+
+| Capability | Pack | Description | Docs |
 | :--- | :--- | :--- | :--- |
-| **`json_formatter_validator`** | `data` | Format, minify, validate, and inspect JSON with line/column syntax diagnostics | [Docs](docs/capabilities/json-formatter-validator.md) |
-| **`text_diff_analyzer`** | `text` | Compute structured line/word diffs and summaries between text blocks | [Docs](docs/capabilities/text-diff-analyzer.md) |
-| **`hash_and_encoding`** | `encoding` | SHA-256, SHA-512, Base64/Base64URL, Hex, URL encoding, and UUIDv4 | [Docs](docs/capabilities/hash-and-encoding.md) |
-| **`unit_time_converter`** | `utility` | Length, mass, temperature, volume, speed, Unix timestamps, ISO dates & timezones | [Docs](docs/capabilities/unit-time-converter.md) |
-| **`regex_tester`** | `developer` | Safely test, match, and extract capture groups with ReDoS protections | [Docs](docs/capabilities/regex-tester.md) |
+| **`json_formatter_validator`** | `Data Pack` | Format, minify, validate, and inspect JSON with line/column syntax diagnostics | [Docs](docs/capabilities/json-formatter-validator.md) |
+| **`csv_processor`** | `Data Pack` | RFC 4180 parsing, structural inspection, safe filtering, sorting, and JSON conversion | [Docs](docs/capabilities/csv-processor.md) |
+| **`text_diff_analyzer`** | `Text Pack` | Compute structured line/word diffs and summaries between text blocks | [Docs](docs/capabilities/text-diff-analyzer.md) |
+| **`markdown_processor`** | `Text Pack` | Heading extraction, Table of Contents (TOC) generator, link extractor, code block inspection | [Docs](docs/capabilities/markdown-processor.md) |
+| **`hash_and_encoding`** | `Encoding Pack` | SHA-256, SHA-512, Base64/Base64URL, Hex, URL encoding, and UUIDv4 | [Docs](docs/capabilities/hash-and-encoding.md) |
+| **`unit_time_converter`** | `Utility Pack` | Length, mass, temperature, volume, speed, Unix timestamps, ISO dates & timezones | [Docs](docs/capabilities/unit-time-converter.md) |
+| **`color_converter`** | `Utility Pack` | CSS color spaces (HEX, RGB, HSL, HSV, HWB, OKLCH) and WCAG luminance calculation | [Docs](docs/capabilities/color-converter.md) |
+| **`regex_tester`** | `Developer Pack` | Safely test, match, and extract capture groups with ReDoS protections | [Docs](docs/capabilities/regex-tester.md) |
+| **`jwt_inspector`** | `Developer Pack` | In-memory JWT decoder for header, payload claims, and token expiration analysis | [Docs](docs/capabilities/jwt-inspector.md) |
+| **`url_analyzer`** | `Developer Pack` | Offline WHATWG URL decomposition and query parameter analyzer (zero-network, anti-SSRF) | [Docs](docs/capabilities/url-analyzer.md) |
 
 ---
 
@@ -73,14 +105,14 @@ npm run dev:stdio
    * Navigate to **Apps / Plugin Settings** → **Add App**.
    * Enter your HTTPS tunnel URL: `https://<your-tunnel-url>/mcp`.
    * Set Authentication to **No Auth**.
-4. ChatGPT will discover all 5 capabilities and can immediately invoke them during conversations!
+4. ChatGPT will discover all 10 capabilities across all 5 Capability Packs!
 
 ---
 
 ## 🧪 Testing & Validation
 
 ```bash
-# Run all 49 unit and MCP integration tests
+# Run all unit and MCP integration tests
 npm test
 
 # Run TypeScript typecheck
@@ -99,20 +131,13 @@ npm run build
 
 Comprehensive architectural blueprints and specifications are available in the [`docs/`](docs/) directory:
 * [Architecture Overview](docs/architecture/overview.md)
+* [Capability Packs & System Architecture](docs/architecture/capability-system.md)
 * [ChatGPT Integration & Testing Guide](docs/architecture/chatgpt-integration.md)
 * [Free Infrastructure Strategy & Classification](docs/architecture/free-infrastructure.md)
-* [Capability System Architecture](docs/architecture/capability-system.md)
 * [Security Policies](docs/architecture/security.md)
 * [Privacy Model](docs/architecture/privacy.md)
 * [Developer Guide (Adding Capabilities)](docs/developer-guide.md)
-
----
-
-## 🗺️ Platform Roadmap
-
-* **Phase 1 (Current MVP)**: MCP Streamable HTTP server, ChatGPT Developer Mode compatibility, and 5 foundational local capabilities.
-* **Phase 2 (Claude Compatibility)**: Seamless integration with Claude Desktop & remote connectors.
-* **Phase 3 (Gemini & Multi-Client)**: Gemini function calling adapter and community capabilities.
+* [Golden Prompts Benchmark](docs/golden-prompts.md)
 
 ---
 

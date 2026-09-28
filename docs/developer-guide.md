@@ -43,11 +43,17 @@ export class ExampleCapability
     name: "example_transformer",
     version: "1.0.0",
     category: "text",
+    pack: "Text Pack",
     displayName: "Example Text Transformer",
-    description: "Transforms text with zero cost and privacy.",
+    description: "Transforms text with zero cost and local privacy.",
     isFree: true,
     requiresExternalNetwork: false,
     timeoutMs: 3000,
+    usageGuidance: {
+      useWhen: ["User asks to transform text format"],
+      doNotUseWhen: ["User asks to translate between languages"],
+      exampleRequests: ["Transform this text to uppercase"],
+    },
   };
 
   public readonly inputSchema = ExampleInputSchema;
