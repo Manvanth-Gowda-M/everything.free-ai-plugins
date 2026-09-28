@@ -35,14 +35,17 @@ export function startHttpServer(
 
     const url = new URL(req.url || "/", `http://${req.headers.host || "localhost"}`);
 
-    // Health check endpoint
+    // Safe diagnostics health check endpoint (Zero telemetry, zero secrets, zero paths)
     if (url.pathname === "/health" && req.method === "GET") {
       res.writeHead(200, { "Content-Type": "application/json" });
       res.end(
         JSON.stringify({
           status: "ok",
           service: "everything-free-ai-plugins",
+          version: "0.1.0",
           capabilitiesCount: registry.count(),
+          packsCount: 5,
+          transports: ["streamable-http", "stdio"],
           timestamp: new Date().toISOString(),
         })
       );
