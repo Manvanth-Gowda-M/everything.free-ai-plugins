@@ -6,6 +6,11 @@ import { TextDiffOutput } from "../../src/capabilities/text/text-diff.js";
 import { HashAndEncodingOutput } from "../../src/capabilities/encoding/hash-encoding.js";
 import { UnitTimeConverterOutput } from "../../src/capabilities/utility/unit-time-converter.js";
 import { RegexTesterOutput } from "../../src/capabilities/developer/regex-tester.js";
+import { CsvProcessorOutput } from "../../src/capabilities/data/csv-processor.js";
+import { MarkdownProcessorOutput } from "../../src/capabilities/text/markdown-processor.js";
+import { JwtInspectionOutput } from "../../src/capabilities/developer/jwt-inspector.js";
+import { UrlAnalyzerOutput } from "../../src/capabilities/developer/url-analyzer.js";
+import { ColorConverterOutput } from "../../src/capabilities/utility/color-converter.js";
 
 describe("Golden Prompt Test Cases (Simulated Real-World ChatGPT Invocations)", () => {
   const registry = createDefaultRegistry();
@@ -175,6 +180,145 @@ describe("Golden Prompt Test Cases (Simulated Real-World ChatGPT Invocations)", 
       });
       expect(res.success).toBe(true);
       expect(res.data?.matches).toEqual(["v1.0.0", "v1.2.3", "v2.0.0"]);
+    });
+  });
+
+  describe("CSV Processor Golden Prompts (csv_processor)", () => {
+    const cap = registry.get("csv_processor")!;
+    const sampleCsv = "id,name,age,active\n1,Alice,30,true\n2,Bob,24,false\n3,Charlie,35,true";
+
+    it("Golden 1: Inspect CSV structure and column types", async () => {
+      const res = await ExecutionRunner.run<CsvProcessorOutput>(cap, {
+        csvText: sampleCsv,
+        operation: "inspect",
+      });
+      expect(res.success).toBe(true);
+      expect(res.data?.stats?.rowCount).toBe(3);
+      expect(res.data?.stats?.headers).toEqual(["id", "name", "age", "active"]);
+      expect(res.data?.stats?.columnTypes?.age).toBe("number");
+    });
+
+    it("Golden 2: Filter CSV to rows where age is greater than 25", async () => {
+      const res = await ExecutionRunner.run<CsvProcessorOutput>(cap, {
+        csvText: sampleCsv,
+        operation: "filter",
+        filterColumn: "age",
+        filterOperator: "greater_than",
+        filterValue: "25",
+      });
+      expect(res.success).toBe(true);
+      expect(res.data?.rows).toHaveLength(2);
+      expect(res.data?.rows?.map((r) => r[1])).toEqual(["Alice", "Charlie"]);
+    });
+
+    it("Golden 3: Convert CSV to JSON records", async () => {
+      const res = await ExecutionRunner.run<CsvProcessorOutput>(cap, {
+        csvText: sampleCsv,
+        operation: "to_json",
+      });
+      expect(res.success).toBe(true);
+      expect(res.data?.jsonData).toHaveLength(3);
+      expect(res.data?.jsonData?.[0]).toEqual({
+        id: 1,
+        name: "Alice",
+        age: 30,
+        active: true,
+      });
+    });
+  });
+
+  describe("Markdown Processor Golden Prompts (markdown_processor)", () => {
+    const cap = registry.get("markdown_processor")!;
+    const sampleMd = `# Main Architecture
+
+## Core Engine
+Description of core engine.
+
+### Memory Layout
+Details on memory.
+
+\`\`\`typescript
+const x: number = 42;
+\`\`\`
+
+[Documentation](https://quilonix.dev)`;
+
+    it("Golden 1: Extract heading hierarchy", async () => {
+      const res = await ExecutionRunner.run<MarkdownProcessorOutput>(cap, {
+        markdownText: sampleMd,
+        operation: "headings",
+      });
+      expect(res.success).toBe(true);
+      expect(res.data?.headings).toHaveLength(3);
+      expect(res.data?.headings?.[0].text).toBe("Main Architecture");
+    });
+
+    it("Golden 2: Generate Table of Contents (TOC)", async () => {
+      const res = await ExecutionRunner.run<MarkdownProcessorOutput>(cap, {
+        markdownText: sampleMd,
+        operation: "toc",
+      });
+      expect(res.success).toBe(true);
+      expect(res.data?.toc).toContain("- [Main Architecture](#main-architecture)");
+      expect(res.data?.toc).toContain("  - [Core Engine](#core-engine)");
+    });
+
+    it("Golden 3: Extract code blocks and language identifiers", async () => {
+      const res = await ExecutionRunner.run<MarkdownProcessorOutput>(cap, {
+        markdownText: sampleMd,
+        operation: "code_blocks",
+      });
+      expect(res.success).toBe(true);
+      expect(res.data?.codeBlocks).toHaveLength(1);
+      expect(res.data?.codeBlocks?.[0].language).toBe("typescript");
+    });
+  });
+
+  describe("JWT Inspector Golden Prompts (jwt_inspector)", () => {
+    const cap = registry.get("jwt_inspector")!;
+    const sampleJwt =
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkFsaWNlIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMn0.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c";
+
+    it("Golden 1: Inspect JWT header, claims, and payload", async () => {
+      const res = await ExecutionRunner.run<JwtInspectionOutput>(cap, {
+        token: sampleJwt,
+      });
+      expect(res.success).toBe(true);
+      expect(res.data?.validStructure).toBe(true);
+      expect(res.data?.header.alg).toBe("HS256");
+      expect(res.data?.subject).toBe("1234567890");
+      expect(res.data?.payload.admin).toBe(true);
+    });
+  });
+
+  describe("URL Analyzer Golden Prompts (url_analyzer)", () => {
+    const cap = registry.get("url_analyzer")!;
+
+    it("Golden 1: Decompose complex URL structure with query params and port", async () => {
+      const res = await ExecutionRunner.run<UrlAnalyzerOutput>(cap, {
+        url: "https://api.quilonix.dev:8443/v1/search?query=mcp&filter=free&filter=fast#results",
+      });
+      expect(res.success).toBe(true);
+      expect(res.data?.components.protocol).toBe("https");
+      expect(res.data?.components.hostname).toBe("api.quilonix.dev");
+      expect(res.data?.components.port).toBe("8443");
+      expect(res.data?.components.pathname).toBe("/v1/search");
+      expect(res.data?.components.queryParams.filter).toEqual(["free", "fast"]);
+      expect(res.data?.components.hash).toBe("results");
+    });
+  });
+
+  describe("Color Converter Golden Prompts (color_converter)", () => {
+    const cap = registry.get("color_converter")!;
+
+    it("Golden 1: Convert #D4AF37 to RGB, HSL, and calculate luminance", async () => {
+      const res = await ExecutionRunner.run<ColorConverterOutput>(cap, {
+        color: "#D4AF37",
+      });
+      expect(res.success).toBe(true);
+      expect(res.data?.formats.rgb).toBe("rgb(212, 175, 55)");
+      expect(res.data?.formats.hsl).toContain("hsl(46");
+      expect(res.data?.metrics.relativeLuminance).toBeGreaterThan(0.3);
     });
   });
 });
