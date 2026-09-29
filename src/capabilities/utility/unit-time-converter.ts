@@ -50,13 +50,12 @@ export const UnitTimeConverterInputSchema = z.object({
   mode: z
     .enum(["unit", "time"])
     .default("unit")
-    .describe("Conversion mode:\n- 'unit': Physical unit conversion (length, mass, temperature, volume, speed)\n- 'time': Date, timestamp, or timezone conversion"),
+    .describe(
+      "Conversion mode:\n- 'unit': Physical unit conversion (length, mass, temperature, volume, speed)\n- 'time': Date, timestamp, or timezone conversion"
+    ),
 
   // Unit conversion parameters
-  value: z
-    .number()
-    .optional()
-    .describe("Numeric value to convert (required when mode is 'unit')"),
+  value: z.number().optional().describe("Numeric value to convert (required when mode is 'unit')"),
   fromUnit: z
     .string()
     .optional()
@@ -68,18 +67,24 @@ export const UnitTimeConverterInputSchema = z.object({
   toUnit: z
     .string()
     .optional()
-    .describe("Target unit symbol to convert into (must belong to the same physical unit family as fromUnit)"),
+    .describe(
+      "Target unit symbol to convert into (must belong to the same physical unit family as fromUnit)"
+    ),
 
   // Time conversion parameters
   timeInput: z
     .union([z.string(), z.number()])
     .optional()
-    .describe("ISO 8601 string, date string (e.g. '2026-09-28T12:00:00Z'), or numeric Unix timestamp (in seconds or milliseconds)"),
+    .describe(
+      "ISO 8601 string, date string (e.g. '2026-09-28T12:00:00Z'), or numeric Unix timestamp (in seconds or milliseconds)"
+    ),
   targetTimezone: z
     .string()
     .optional()
     .default("UTC")
-    .describe("Target IANA timezone identifier (e.g. 'UTC', 'America/New_York', 'Europe/London', 'Asia/Kolkata', 'Asia/Tokyo')"),
+    .describe(
+      "Target IANA timezone identifier (e.g. 'UTC', 'America/New_York', 'Europe/London', 'Asia/Kolkata', 'Asia/Tokyo')"
+    ),
 });
 
 export type UnitTimeConverterInput = z.infer<typeof UnitTimeConverterInputSchema>;
@@ -129,9 +134,10 @@ function convertTemperature(val: number, from: string, to: string): number {
   throw new Error(`Unknown temperature unit: ${to}`);
 }
 
-export class UnitTimeConverterCapability
-  implements Capability<typeof UnitTimeConverterInputSchema, UnitTimeConverterOutput>
-{
+export class UnitTimeConverterCapability implements Capability<
+  typeof UnitTimeConverterInputSchema,
+  UnitTimeConverterOutput
+> {
   public readonly metadata: CapabilityMetadata = {
     name: "unit_time_converter",
     version: "1.0.0",
@@ -151,15 +157,18 @@ export class UnitTimeConverterCapability
     operations: [
       {
         name: "unit",
-        description: "Converts physical measurement units across length, mass, temperature, volume, and speed",
+        description:
+          "Converts physical measurement units across length, mass, temperature, volume, and speed",
         inputDescription: "mode: 'unit', value: number, fromUnit: string, toUnit: string",
-        outputDescription: "{ mode: 'unit', unitResult: { fromValue, fromUnit, toValue, toUnit, category, formula } }",
+        outputDescription:
+          "{ mode: 'unit', unitResult: { fromValue, fromUnit, toValue, toUnit, category, formula } }",
       },
       {
         name: "time",
         description: "Converts Unix timestamps, ISO date strings, and target IANA timezones",
         inputDescription: "mode: 'time', timeInput: string | number, targetTimezone?: string",
-        outputDescription: "{ mode: 'time', timeResult: { unixTimestamp, iso, utc, targetTimezone, formattedTargetTime } }",
+        outputDescription:
+          "{ mode: 'time', timeResult: { unixTimestamp, iso, utc, targetTimezone, formattedTargetTime } }",
       },
     ],
     limits: {
@@ -210,7 +219,8 @@ export class UnitTimeConverterCapability
           success: false,
           error: {
             code: "MISSING_ARGUMENTS",
-            message: "Unit conversion requires 'value', 'fromUnit', and 'toUnit'. Example: { value: 10, fromUnit: 'mi', toUnit: 'km' }",
+            message:
+              "Unit conversion requires 'value', 'fromUnit', and 'toUnit'. Example: { value: 10, fromUnit: 'mi', toUnit: 'km' }",
           },
         };
       }
@@ -345,7 +355,8 @@ export class UnitTimeConverterCapability
         success: false,
         error: {
           code: "MISSING_ARGUMENTS",
-          message: "Time conversion requires 'timeInput'. Example: { mode: 'time', timeInput: 1700000000, targetTimezone: 'UTC' }",
+          message:
+            "Time conversion requires 'timeInput'. Example: { mode: 'time', timeInput: 1700000000, targetTimezone: 'UTC' }",
         },
       };
     }

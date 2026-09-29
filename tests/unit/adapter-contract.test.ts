@@ -27,10 +27,7 @@ describe("Cross-Platform Adapter Contract Tests", () => {
       }
     );
 
-    await Promise.all([
-      mcpServer.connect(serverTransport),
-      mcpClient.connect(clientTransport),
-    ]);
+    await Promise.all([mcpServer.connect(serverTransport), mcpClient.connect(clientTransport)]);
   });
 
   afterAll(async () => {
@@ -43,7 +40,10 @@ describe("Cross-Platform Adapter Contract Tests", () => {
 
     const mcpNames = mcpTools.tools.map((t) => t.name).sort();
     const geminiNames = geminiTools[0].functionDeclarations.map((f) => f.name).sort();
-    const registryNames = registry.getAll().map((c) => c.metadata.name).sort();
+    const registryNames = registry
+      .getAll()
+      .map((c) => c.metadata.name)
+      .sort();
 
     expect(mcpNames).toHaveLength(15);
     expect(geminiNames).toHaveLength(15);
@@ -140,7 +140,10 @@ describe("Cross-Platform Adapter Contract Tests", () => {
         toUnit: "m",
       };
 
-      const directResult = await ExecutionRunner.run(registry.get("unit_time_converter")!, invalidArgs);
+      const directResult = await ExecutionRunner.run(
+        registry.get("unit_time_converter")!,
+        invalidArgs
+      );
       const geminiResult = await geminiAdapter.executeTool("unit_time_converter", invalidArgs);
 
       expect(directResult.success).toBe(false);

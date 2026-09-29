@@ -1,6 +1,10 @@
 import { describe, it, expect } from "vitest";
 import { z } from "zod";
-import { zodToJsonSchema, jsonSchemaToGeminiSchema, zodToJsonSchemaProperty } from "../../src/adapters/schema.js";
+import {
+  zodToJsonSchema,
+  jsonSchemaToGeminiSchema,
+  zodToJsonSchemaProperty,
+} from "../../src/adapters/schema.js";
 
 describe("Schema Translation Unit Tests", () => {
   it("converts basic primitive Zod types to JSON Schema properties", () => {

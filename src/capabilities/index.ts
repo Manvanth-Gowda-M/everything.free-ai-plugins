@@ -33,27 +33,32 @@ export const CAPABILITY_PACKS: CapabilityPackInfo[] = [
   {
     id: "data",
     name: "Data Pack",
-    description: "High-performance local tools for inspecting, formatting, and transforming structured data (JSON, CSV, SQL, XML).",
+    description:
+      "High-performance local tools for inspecting, formatting, and transforming structured data (JSON, CSV, SQL, XML).",
   },
   {
     id: "text",
     name: "Text Pack",
-    description: "Tools for text diffing, structural document analysis, markdown processing, and HTML extraction/cleaning.",
+    description:
+      "Tools for text diffing, structural document analysis, markdown processing, and HTML extraction/cleaning.",
   },
   {
     id: "encoding",
     name: "Encoding Pack",
-    description: "Cryptographic hashing (SHA-256, SHA-512), standard encodings (Base64, Hex, URL), and UUID generation.",
+    description:
+      "Cryptographic hashing (SHA-256, SHA-512), standard encodings (Base64, Hex, URL), and UUID generation.",
   },
   {
     id: "utility",
     name: "Utility Pack",
-    description: "Physical unit conversions, timezone/date parsing, color space transformations, and cron expression analysis.",
+    description:
+      "Physical unit conversions, timezone/date parsing, color space transformations, and cron expression analysis.",
   },
   {
     id: "developer",
     name: "Developer Pack",
-    description: "Essential developer utilities for regular expressions, JWT inspection, URL analysis, and MIME / magic-byte detection.",
+    description:
+      "Essential developer utilities for regular expressions, JWT inspection, URL analysis, and MIME / magic-byte detection.",
   },
 ];
 

@@ -30,7 +30,9 @@ export const HtmlProcessorInputSchema = z.object({
     .max(8, "Indentation cannot exceed 8 spaces")
     .default(2)
     .optional()
-    .describe("Number of spaces for pretty-print indentation when operation is 'format' (default: 2, range: 1-8)"),
+    .describe(
+      "Number of spaces for pretty-print indentation when operation is 'format' (default: 2, range: 1-8)"
+    ),
 });
 
 export type HtmlProcessorInput = z.infer<typeof HtmlProcessorInputSchema>;
@@ -122,7 +124,20 @@ export interface HtmlProcessorOutput {
 
 // Void elements in HTML
 const VOID_ELEMENTS = new Set([
-  "area", "base", "br", "col", "embed", "hr", "img", "input", "link", "meta", "param", "source", "track", "wbr"
+  "area",
+  "base",
+  "br",
+  "col",
+  "embed",
+  "hr",
+  "img",
+  "input",
+  "link",
+  "meta",
+  "param",
+  "source",
+  "track",
+  "wbr",
 ]);
 
 // Raw text elements
@@ -209,8 +224,17 @@ function parseHtmlDocument(html: string): { root: HtmlElementNode; stats: HtmlIn
       // 3. Closing tag </tag>
       if (html.startsWith("</", i)) {
         const end = html.indexOf(">", i + 2);
-        const closingTag = end === -1 ? html.slice(i + 2).trim().toLowerCase() : html.slice(i + 2, end).trim().toLowerCase();
-        
+        const closingTag =
+          end === -1
+            ? html
+                .slice(i + 2)
+                .trim()
+                .toLowerCase()
+            : html
+                .slice(i + 2, end)
+                .trim()
+                .toLowerCase();
+
         // Find matching tag in stack
         for (let s = stack.length - 1; s > 0; s--) {
           if (stack[s].tag === closingTag) {
@@ -230,7 +254,8 @@ function parseHtmlDocument(html: string): { root: HtmlElementNode; stats: HtmlIn
       }
 
       let tagContent = html.slice(i + 1, end).trim();
-      const isSelfClosing = tagContent.endsWith("/") || VOID_ELEMENTS.has(tagContent.split(/\s+/)[0].toLowerCase());
+      const isSelfClosing =
+        tagContent.endsWith("/") || VOID_ELEMENTS.has(tagContent.split(/\s+/)[0].toLowerCase());
       if (tagContent.endsWith("/")) {
         tagContent = tagContent.slice(0, -1).trim();
       }
@@ -250,7 +275,14 @@ function parseHtmlDocument(html: string): { root: HtmlElementNode; stats: HtmlIn
       let attrMatch: RegExpExecArray | null;
       while ((attrMatch = attrRegex.exec(attrString)) !== null) {
         const attrName = attrMatch[1].toLowerCase();
-        const attrVal = attrMatch[2] !== undefined ? attrMatch[2] : attrMatch[3] !== undefined ? attrMatch[3] : attrMatch[4] !== undefined ? attrMatch[4] : "";
+        const attrVal =
+          attrMatch[2] !== undefined
+            ? attrMatch[2]
+            : attrMatch[3] !== undefined
+              ? attrMatch[3]
+              : attrMatch[4] !== undefined
+                ? attrMatch[4]
+                : "";
         attributes[attrName] = decodeHtmlEntities(attrVal);
       }
 
@@ -292,7 +324,7 @@ function parseHtmlDocument(html: string): { root: HtmlElementNode; stats: HtmlIn
         const closingTag = `</${tagName}>`;
         const closeIdx = html.toLowerCase().indexOf(closingTag, end + 1);
         const rawContent = closeIdx === -1 ? html.slice(end + 1) : html.slice(end + 1, closeIdx);
-        
+
         elemNode.children!.push({
           type: "text",
           text: rawContent,
@@ -360,7 +392,14 @@ function extractPlainText(node: HtmlElementNode): string {
       return "";
     }
     const childrenText = (node.children || []).map(extractPlainText).join("");
-    if (node.tag === "p" || node.tag === "div" || node.tag === "br" || node.tag === "li" || node.tag === "tr" || node.tag?.startsWith("h")) {
+    if (
+      node.tag === "p" ||
+      node.tag === "div" ||
+      node.tag === "br" ||
+      node.tag === "li" ||
+      node.tag === "tr" ||
+      node.tag?.startsWith("h")
+    ) {
       return `\n${childrenText}\n`;
     }
     return childrenText;
@@ -371,7 +410,10 @@ function extractPlainText(node: HtmlElementNode): string {
 /**
  * Traverses HTML tree to extract structured components.
  */
-function extractStructuredData(root: HtmlElementNode, stats: HtmlInspectionStats): HtmlExtractionData {
+function extractStructuredData(
+  root: HtmlElementNode,
+  stats: HtmlInspectionStats
+): HtmlExtractionData {
   const headings: HtmlHeadingItem[] = [];
   const links: HtmlLinkItem[] = [];
   const images: HtmlImageItem[] = [];
@@ -443,7 +485,10 @@ function extractStructuredData(root: HtmlElementNode, stats: HtmlInspectionStats
     if (name === "description") description = content;
     if (name === "author") author = content;
     if (name === "keywords") {
-      keywords = content.split(",").map((k) => k.trim()).filter((k) => k.length > 0);
+      keywords = content
+        .split(",")
+        .map((k) => k.trim())
+        .filter((k) => k.length > 0);
     }
 
     if (prop && prop.startsWith("og:")) {
@@ -481,9 +526,22 @@ function extractStructuredData(root: HtmlElementNode, stats: HtmlInspectionStats
 /**
  * Cleans dangerous and non-content elements and attributes from HTML.
  */
-function cleanHtml(node: HtmlElementNode): { node: HtmlElementNode | null; removedTags: number; removedAttrs: number } {
+function cleanHtml(node: HtmlElementNode): {
+  node: HtmlElementNode | null;
+  removedTags: number;
+  removedAttrs: number;
+} {
   const UNSAFE_TAGS = new Set([
-    "script", "style", "iframe", "object", "embed", "applet", "frame", "frameset", "base", "link"
+    "script",
+    "style",
+    "iframe",
+    "object",
+    "embed",
+    "applet",
+    "frame",
+    "frameset",
+    "base",
+    "link",
   ]);
 
   let removedTags = 0;
@@ -633,7 +691,9 @@ function minifyHtmlTree(node: HtmlElementNode): string {
     const hasElementChildren = (node.children || []).some((c) => c.type === "element");
     let childrenToMinify = node.children || [];
     if (hasElementChildren) {
-      childrenToMinify = childrenToMinify.filter((c) => c.type !== "text" || (c.text && c.text.trim().length > 0));
+      childrenToMinify = childrenToMinify.filter(
+        (c) => c.type !== "text" || (c.text && c.text.trim().length > 0)
+      );
     }
 
     const childrenStr = childrenToMinify.map(minifyHtmlTree).join("");
@@ -642,9 +702,10 @@ function minifyHtmlTree(node: HtmlElementNode): string {
   return "";
 }
 
-export class HtmlProcessorCapability
-  implements Capability<typeof HtmlProcessorInputSchema, HtmlProcessorOutput>
-{
+export class HtmlProcessorCapability implements Capability<
+  typeof HtmlProcessorInputSchema,
+  HtmlProcessorOutput
+> {
   public readonly metadata: CapabilityMetadata = {
     name: "html_processor",
     version: "1.0.0",
@@ -663,19 +724,24 @@ export class HtmlProcessorCapability
     operations: [
       {
         name: "inspect",
-        description: "Analyzes document structure, element counts, headings, links, images, scripts, and nesting depth",
+        description:
+          "Analyzes document structure, element counts, headings, links, images, scripts, and nesting depth",
         inputDescription: "htmlText",
-        outputDescription: "Structural stats including headings, links, totalElements, and maxDepth",
+        outputDescription:
+          "Structural stats including headings, links, totalElements, and maxDepth",
       },
       {
         name: "extract",
-        description: "Extracts plain text, headings hierarchy, hyperlinks, images, and OpenGraph/Twitter metadata",
-        inputDescription: "htmlText, extractTarget (optional: 'all', 'text', 'links', 'headings', 'images', 'metadata')",
+        description:
+          "Extracts plain text, headings hierarchy, hyperlinks, images, and OpenGraph/Twitter metadata",
+        inputDescription:
+          "htmlText, extractTarget (optional: 'all', 'text', 'links', 'headings', 'images', 'metadata')",
         outputDescription: "Structured extracted data matching requested extractTarget",
       },
       {
         name: "clean",
-        description: "Strips unsafe tags (<script>, <iframe>, <object>), event handlers (onclick), and javascript: URLs",
+        description:
+          "Strips unsafe tags (<script>, <iframe>, <object>), event handlers (onclick), and javascript: URLs",
         inputDescription: "htmlText",
         outputDescription: "Cleaned HTML markup and statistics on removed items",
       },
@@ -687,7 +753,8 @@ export class HtmlProcessorCapability
       },
       {
         name: "minify",
-        description: "Compresses HTML into a compact single line, removing comments and inter-tag whitespace",
+        description:
+          "Compresses HTML into a compact single line, removing comments and inter-tag whitespace",
         inputDescription: "htmlText",
         outputDescription: "Minified compact HTML string",
       },
@@ -703,7 +770,8 @@ export class HtmlProcessorCapability
       offlineOnly: true,
       zeroRetention: true,
       noExternalCalls: true,
-      notes: "Never executes JavaScript, fetches resources, or runs browser engines. Pure offline text processing.",
+      notes:
+        "Never executes JavaScript, fetches resources, or runs browser engines. Pure offline text processing.",
     },
     usageGuidance: {
       useWhen: [
@@ -729,9 +797,7 @@ export class HtmlProcessorCapability
 
   public readonly inputSchema = HtmlProcessorInputSchema;
 
-  public async execute(
-    input: HtmlProcessorInput
-  ): Promise<CapabilityResult<HtmlProcessorOutput>> {
+  public async execute(input: HtmlProcessorInput): Promise<CapabilityResult<HtmlProcessorOutput>> {
     const { htmlText, operation = "inspect", extractTarget = "all", indent = 2 } = input;
 
     const { root, stats } = parseHtmlDocument(htmlText);

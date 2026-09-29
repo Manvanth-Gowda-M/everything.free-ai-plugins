@@ -34,15 +34,10 @@ export function createMcpServer(registry: CapabilityRegistry): McpServer {
         ? capability.inputSchema.shape
         : { input: capability.inputSchema };
 
-    server.tool(
-      name,
-      description,
-      shape,
-      async (args: Record<string, unknown>) => {
-        const result = await ExecutionRunner.run(capability, args);
-        return formatMcpResult(result);
-      }
-    );
+    server.tool(name, description, shape, async (args: Record<string, unknown>) => {
+      const result = await ExecutionRunner.run(capability, args);
+      return formatMcpResult(result);
+    });
   }
 
   // 2. Register MCP read-only Resources

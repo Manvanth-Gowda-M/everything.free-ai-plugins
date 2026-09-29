@@ -8,13 +8,7 @@ describe("Capability Contract v2 Automated Test Suite", () => {
   const capabilities = registry.getAll();
 
   const VALID_CATEGORIES = ["data", "text", "encoding", "developer", "utility"];
-  const VALID_PACKS = [
-    "Data Pack",
-    "Text Pack",
-    "Encoding Pack",
-    "Utility Pack",
-    "Developer Pack",
-  ];
+  const VALID_PACKS = ["Data Pack", "Text Pack", "Encoding Pack", "Utility Pack", "Developer Pack"];
 
   it("should have exactly 15 registered capabilities in the default registry", () => {
     expect(capabilities.length).toBe(15);
@@ -94,7 +88,10 @@ describe("Capability Contract v2 Automated Test Suite", () => {
 
           for (const propName of propNames) {
             const field = shape[propName];
-            expect(field.description, `Field '${propName}' in '${name}' must have a description`).toBeDefined();
+            expect(
+              field.description,
+              `Field '${propName}' in '${name}' must have a description`
+            ).toBeDefined();
             expect(field.description?.length).toBeGreaterThan(5);
           }
         });

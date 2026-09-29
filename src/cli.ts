@@ -115,7 +115,9 @@ export async function runCli(args: string[] = process.argv.slice(2)): Promise<vo
   }
 
   if (config.unknownArgs.length > 0) {
-    throw new Error(`Unknown argument(s): ${config.unknownArgs.join(", ")}. Run 'everything-free --help' for usage.`);
+    throw new Error(
+      `Unknown argument(s): ${config.unknownArgs.join(", ")}. Run 'everything-free --help' for usage.`
+    );
   }
 
   const registry = createDefaultRegistry();

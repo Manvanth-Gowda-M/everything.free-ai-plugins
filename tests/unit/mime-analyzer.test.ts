@@ -1,5 +1,8 @@
 import { describe, it, expect } from "vitest";
-import { MimeAnalyzerCapability, MimeAnalyzerOutput } from "../../src/capabilities/developer/mime-analyzer.js";
+import {
+  MimeAnalyzerCapability,
+  MimeAnalyzerOutput,
+} from "../../src/capabilities/developer/mime-analyzer.js";
 import { ExecutionRunner } from "../../src/core/execution.js";
 
 describe("MimeAnalyzerCapability", () => {
@@ -82,7 +85,9 @@ describe("MimeAnalyzerCapability", () => {
 
       expect(res.success).toBe(true);
       expect(res.data?.mismatchDetected).toBe(true);
-      expect(res.data?.mismatchDetails).toContain("File extension '.pdf' implies 'application/pdf', but magic byte header indicates 'image/png'");
+      expect(res.data?.mismatchDetails).toContain(
+        "File extension '.pdf' implies 'application/pdf', but magic byte header indicates 'image/png'"
+      );
       expect(res.data?.detectedMimeType).toBe("image/png");
     });
 

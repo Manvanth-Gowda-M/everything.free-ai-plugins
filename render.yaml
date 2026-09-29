@@ -1,0 +1,23 @@
+services:
+  - type: web
+    name: everything-free-mcp
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    plan: free
+    region: oregon
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3000
+      - key: HOST
+        value: 0.0.0.0
+      - key: MAX_CONCURRENT_REQUESTS
+        value: 20
+      - key: MAX_BODY_SIZE_BYTES
+        value: 1048576
+      - key: SHUTDOWN_TIMEOUT_MS
+        value: 5000
+      - key: LOG_LEVEL
+        value: info

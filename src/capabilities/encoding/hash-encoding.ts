@@ -37,7 +37,9 @@ export const HashAndEncodingInputSchema = z.object({
     .string()
     .max(100_000, "Input text exceeds maximum size limit of 100KB")
     .optional()
-    .describe("Input string to hash or encode/decode (UTF-8). Not required when operation is 'uuid_v4'"),
+    .describe(
+      "Input string to hash or encode/decode (UTF-8). Not required when operation is 'uuid_v4'"
+    ),
 });
 
 export type HashAndEncodingInput = z.infer<typeof HashAndEncodingInputSchema>;
@@ -49,9 +51,10 @@ export interface HashAndEncodingOutput {
   outputLength: number;
 }
 
-export class HashAndEncodingCapability
-  implements Capability<typeof HashAndEncodingInputSchema, HashAndEncodingOutput>
-{
+export class HashAndEncodingCapability implements Capability<
+  typeof HashAndEncodingInputSchema,
+  HashAndEncodingOutput
+> {
   public readonly metadata: CapabilityMetadata = {
     name: "hash_and_encoding",
     version: "1.0.0",

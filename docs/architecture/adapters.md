@@ -41,6 +41,7 @@ export interface PlatformAdapter<TDeclaration = unknown, TResponse = unknown> {
 ```
 
 ### Key Principles
+
 1. **Single Source of Truth**: Exactly one implementation of each capability exists. Adapters NEVER duplicate processing logic.
 2. **Schema Translation**: Parameter schemas are compiled directly from canonical Zod definitions into target platform formats (JSON Schema for MCP/ChatGPT, OpenAPI 3.0 for Gemini).
 3. **Normalized Execution**: All executions route through `ExecutionRunner.run()`, ensuring uniform schema validation, execution timeouts (3000ms), and error normalization across all platforms.
@@ -49,11 +50,11 @@ export interface PlatformAdapter<TDeclaration = unknown, TResponse = unknown> {
 
 ## 3. Adapter Comparison Matrix
 
-| Platform | Integration Channel | Protocol / Format | Adapter Component | External SDK Required |
-| :--- | :--- | :--- | :--- | :--- |
-| **ChatGPT** | Developer Mode | MCP Streamable HTTP (`/mcp`) | `McpServer` + `StreamableHTTPServerTransport` | None (`@modelcontextprotocol/sdk`) |
-| **Claude** | Claude Desktop | MCP stdio IPC | `McpServer` + `StdioServerTransport` | None (`@modelcontextprotocol/sdk`) |
-| **Gemini** | API / Function Calling | Gemini `FunctionDeclaration` & `functionCall` | `GeminiAdapter` (`src/adapters/gemini/`) | None (Zero extra dependencies) |
+| Platform    | Integration Channel    | Protocol / Format                             | Adapter Component                             | External SDK Required              |
+| :---------- | :--------------------- | :-------------------------------------------- | :-------------------------------------------- | :--------------------------------- |
+| **ChatGPT** | Developer Mode         | MCP Streamable HTTP (`/mcp`)                  | `McpServer` + `StreamableHTTPServerTransport` | None (`@modelcontextprotocol/sdk`) |
+| **Claude**  | Claude Desktop         | MCP stdio IPC                                 | `McpServer` + `StdioServerTransport`          | None (`@modelcontextprotocol/sdk`) |
+| **Gemini**  | API / Function Calling | Gemini `FunctionDeclaration` & `functionCall` | `GeminiAdapter` (`src/adapters/gemini/`)      | None (Zero extra dependencies)     |
 
 ---
 
@@ -62,6 +63,7 @@ export interface PlatformAdapter<TDeclaration = unknown, TResponse = unknown> {
 Every execution produces an AI-friendly, deterministic response:
 
 ### Success Response
+
 ```json
 {
   "ok": true,
@@ -71,6 +73,7 @@ Every execution produces an AI-friendly, deterministic response:
 ```
 
 ### Error Response
+
 ```json
 {
   "ok": false,
@@ -82,4 +85,5 @@ Every execution produces an AI-friendly, deterministic response:
   "durationMs": 0.4
 }
 ```
+
 Stack traces, environment variables, local filesystem paths, and internal implementation details are strictly excluded from output payloads.

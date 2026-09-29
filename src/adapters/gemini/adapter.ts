@@ -116,7 +116,10 @@ export class GeminiAdapter implements PlatformAdapter<GeminiTool, GeminiFunction
   /**
    * Normalizes execution into standard internal NormalizedExecutionResult.
    */
-  public async executeNormalized(toolName: string, rawArgs: unknown): Promise<NormalizedExecutionResult> {
+  public async executeNormalized(
+    toolName: string,
+    rawArgs: unknown
+  ): Promise<NormalizedExecutionResult> {
     const res = await this.executeTool(toolName, rawArgs);
     return {
       ok: res.response.ok,

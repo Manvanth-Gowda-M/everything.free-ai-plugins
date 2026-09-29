@@ -1,15 +1,16 @@
 # JWT Token Inspector (`jwt_inspector`)
 
 ## 1. Overview
+
 The `jwt_inspector` capability parses, decodes, and inspects JSON Web Tokens (JWT) locally in memory. It extracts headers, payloads, standard claims (issuer, subject, audience, expiration), and calculates token expiration metrics.
 
-* **Pack**: `Developer Pack`
-* **Category**: `developer`
-* **Version**: `1.0.0`
-* **Cost**: 100% Free (₹0 / $0)
-* **Execution**: 100% Local (in-memory)
-* **Privacy**: `local-only` (Zero retention, never persisted or logged)
-* **External Dependencies**: None
+- **Pack**: `Developer Pack`
+- **Category**: `developer`
+- **Version**: `1.0.0`
+- **Cost**: 100% Free (₹0 / $0)
+- **Execution**: 100% Local (in-memory)
+- **Privacy**: `local-only` (Zero retention, never persisted or logged)
+- **External Dependencies**: None
 
 ---
 
@@ -21,8 +22,8 @@ The `jwt_inspector` capability parses, decodes, and inspects JSON Web Tokens (JW
 
 ## 3. Supported Operations
 
-| Operation | Description | Output |
-| :--- | :--- | :--- |
+| Operation | Description                                     | Output                                                                                                             |
+| :-------- | :---------------------------------------------- | :----------------------------------------------------------------------------------------------------------------- |
 | `inspect` | Decodes header, payload, claims, and timestamps | `{ validStructure, header, payload, subject, issuer, audience, timestamps, signaturePreview, verificationNotice }` |
 
 ---

@@ -101,7 +101,9 @@ function parseCssColor(str: string): RGBA | null {
   }
 
   // 2. RGB / RGBA: rgb(r, g, b) or rgba(r, g, b, a)
-  const rgbMatch = clean.match(/^rgba?\(\s*([\d.]+)\s*,\s*([\d.]+)\s*,\s*([\d.]+)(?:\s*,\s*([\d.%]+))?\s*\)$/);
+  const rgbMatch = clean.match(
+    /^rgba?\(\s*([\d.]+)\s*,\s*([\d.]+)\s*,\s*([\d.]+)(?:\s*,\s*([\d.%]+))?\s*\)$/
+  );
   if (rgbMatch) {
     const r = Math.min(255, Math.max(0, parseFloat(rgbMatch[1])));
     const g = Math.min(255, Math.max(0, parseFloat(rgbMatch[2])));
@@ -116,9 +118,11 @@ function parseCssColor(str: string): RGBA | null {
   }
 
   // 3. HSL / HSLA: hsl(h, s%, l%) or hsla(h, s%, l%, a)
-  const hslMatch = clean.match(/^hsla?\(\s*([\d.]+)\s*,\s*([\d.]+)%\s*,\s*([\d.]+)%(?:\s*,\s*([\d.%]+))?\s*\)$/);
+  const hslMatch = clean.match(
+    /^hsla?\(\s*([\d.]+)\s*,\s*([\d.]+)%\s*,\s*([\d.]+)%(?:\s*,\s*([\d.%]+))?\s*\)$/
+  );
   if (hslMatch) {
-    const h = (parseFloat(hslMatch[1]) % 360 + 360) % 360;
+    const h = ((parseFloat(hslMatch[1]) % 360) + 360) % 360;
     const s = Math.min(100, Math.max(0, parseFloat(hslMatch[2]))) / 100;
     const l = Math.min(100, Math.max(0, parseFloat(hslMatch[3]))) / 100;
     let a = 1;
@@ -130,7 +134,8 @@ function parseCssColor(str: string): RGBA | null {
 
     // Convert HSL to RGB
     const k = (n: number) => (n + h / 30) % 12;
-    const f = (n: number) => l - s * Math.min(l, 1 - l) * Math.max(-1, Math.min(k(n) - 3, Math.min(9 - k(n), 1)));
+    const f = (n: number) =>
+      l - s * Math.min(l, 1 - l) * Math.max(-1, Math.min(k(n) - 3, Math.min(9 - k(n), 1)));
     return {
       r: Math.round(f(0) * 255),
       g: Math.round(f(8) * 255),
@@ -226,9 +231,10 @@ function calculateRelativeLuminance(r: number, g: number, b: number): number {
   return Number((a[0] * 0.2126 + a[1] * 0.7152 + a[2] * 0.0722).toFixed(4));
 }
 
-export class ColorConverterCapability
-  implements Capability<typeof ColorConverterInputSchema, ColorConverterOutput>
-{
+export class ColorConverterCapability implements Capability<
+  typeof ColorConverterInputSchema,
+  ColorConverterOutput
+> {
   public readonly metadata: CapabilityMetadata = {
     name: "color_converter",
     version: "1.0.0",
@@ -247,9 +253,11 @@ export class ColorConverterCapability
     operations: [
       {
         name: "convert",
-        description: "Converts CSS colors across HEX, RGB, RGBA, HSL, HSLA, HSV, HWB, and OKLCH color spaces",
+        description:
+          "Converts CSS colors across HEX, RGB, RGBA, HSL, HSLA, HSV, HWB, and OKLCH color spaces",
         inputDescription: "color: string (e.g., '#D4AF37', 'rgb(212, 175, 55)')",
-        outputDescription: "{ valid, formats: { hex, rgb, rgba, hsl, hsla, hsv, hwb, oklch }, channels, metrics }",
+        outputDescription:
+          "{ valid, formats: { hex, rgb, rgba, hsl, hsla, hsv, hwb, oklch }, channels, metrics }",
       },
     ],
     limits: {
@@ -283,7 +291,9 @@ export class ColorConverterCapability
 
   public readonly inputSchema = ColorConverterInputSchema;
 
-  public async execute(input: ColorConverterInput): Promise<CapabilityResult<ColorConverterOutput>> {
+  public async execute(
+    input: ColorConverterInput
+  ): Promise<CapabilityResult<ColorConverterOutput>> {
     const { color } = input;
     const rgba = parseCssColor(color);
 
@@ -303,7 +313,10 @@ export class ColorConverterCapability
 
     const { r, g, b, a } = rgba;
     const hex = `#${((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1).toUpperCase()}`;
-    const aHex = Math.round(a * 255).toString(16).padStart(2, "0").toUpperCase();
+    const aHex = Math.round(a * 255)
+      .toString(16)
+      .padStart(2, "0")
+      .toUpperCase();
     const hex8 = `${hex}${aHex}`;
 
     const hsl = rgbToHsl(r, g, b);

@@ -6,7 +6,9 @@ export const CronAnalyzerInputSchema = z.object({
     .string()
     .min(1, "Cron expression cannot be empty")
     .max(100, "Cron expression exceeds maximum length limit")
-    .describe("The cron expression string to parse, validate, explain, or evaluate (e.g. '0 9 * * 1-5' or '@daily')"),
+    .describe(
+      "The cron expression string to parse, validate, explain, or evaluate (e.g. '0 9 * * 1-5' or '@daily')"
+    ),
   operation: z
     .enum(["explain", "parse", "validate", "next_matches"])
     .default("explain")
@@ -30,7 +32,9 @@ export const CronAnalyzerInputSchema = z.object({
     .max(50, "Match count cannot exceed 50")
     .default(5)
     .optional()
-    .describe("Number of next occurrences to calculate when operation is 'next_matches' (default: 5, max: 50)"),
+    .describe(
+      "Number of next occurrences to calculate when operation is 'next_matches' (default: 5, max: 50)"
+    ),
   timezone: z
     .string()
     .default("UTC")
@@ -78,12 +82,28 @@ export interface CronAnalyzerOutput {
 }
 
 const MONTH_NAMES: Record<string, number> = {
-  JAN: 1, FEB: 2, MAR: 3, APR: 4, MAY: 5, JUN: 6,
-  JUL: 7, AUG: 8, SEP: 9, OCT: 10, NOV: 11, DEC: 12
+  JAN: 1,
+  FEB: 2,
+  MAR: 3,
+  APR: 4,
+  MAY: 5,
+  JUN: 6,
+  JUL: 7,
+  AUG: 8,
+  SEP: 9,
+  OCT: 10,
+  NOV: 11,
+  DEC: 12,
 };
 
 const DAY_NAMES: Record<string, number> = {
-  SUN: 0, MON: 1, TUE: 2, WED: 3, THU: 4, FRI: 5, SAT: 6
+  SUN: 0,
+  MON: 1,
+  TUE: 2,
+  WED: 3,
+  THU: 4,
+  FRI: 5,
+  SAT: 6,
 };
 
 const MACROS: Record<string, string> = {
@@ -205,7 +225,10 @@ function parseField(
     // Single number
     const num = parseInt(part, 10);
     if (isNaN(num) || num < min || num > max) {
-      return { values: [], error: `Value '${part}' out of allowed bounds (${min}-${max}) in '${fieldStr}'` };
+      return {
+        values: [],
+        error: `Value '${part}' out of allowed bounds (${min}-${max}) in '${fieldStr}'`,
+      };
     }
     valuesSet.add(wrapDayOfWeek && num === 7 ? 0 : num);
   }
@@ -228,7 +251,9 @@ function parseCronExpression(rawExpr: string): {
   if (parts.length !== 5 && parts.length !== 6) {
     return {
       normalized,
-      errors: [`Cron expression must have 5 fields (or 6 with seconds); found ${parts.length} fields.`],
+      errors: [
+        `Cron expression must have 5 fields (or 6 with seconds); found ${parts.length} fields.`,
+      ],
     };
   }
 
@@ -443,9 +468,10 @@ function calculateNextMatches(
   return matches;
 }
 
-export class CronAnalyzerCapability
-  implements Capability<typeof CronAnalyzerInputSchema, CronAnalyzerOutput>
-{
+export class CronAnalyzerCapability implements Capability<
+  typeof CronAnalyzerInputSchema,
+  CronAnalyzerOutput
+> {
   public readonly metadata: CapabilityMetadata = {
     name: "cron_analyzer",
     version: "1.0.0",
@@ -469,7 +495,8 @@ export class CronAnalyzerCapability
       },
       {
         name: "parse",
-        description: "Deconstructs cron expression into individual numerical field arrays and metadata",
+        description:
+          "Deconstructs cron expression into individual numerical field arrays and metadata",
         inputDescription: "expression",
         outputDescription: "Detailed field mappings for minutes, hours, days, months, and weekdays",
       },
@@ -481,7 +508,8 @@ export class CronAnalyzerCapability
       },
       {
         name: "next_matches",
-        description: "Calculates the next N deterministic execution timestamps starting from a specified base time",
+        description:
+          "Calculates the next N deterministic execution timestamps starting from a specified base time",
         inputDescription: "expression, baseTime (optional), count (optional, default 5)",
         outputDescription: "Array of matching ISO timestamps and formatted dates",
       },
@@ -497,7 +525,8 @@ export class CronAnalyzerCapability
       offlineOnly: true,
       zeroRetention: true,
       noExternalCalls: true,
-      notes: "Never creates background jobs, timers, or schedulers. 100% deterministic local computation.",
+      notes:
+        "Never creates background jobs, timers, or schedulers. 100% deterministic local computation.",
     },
     usageGuidance: {
       useWhen: [
@@ -522,9 +551,7 @@ export class CronAnalyzerCapability
 
   public readonly inputSchema = CronAnalyzerInputSchema;
 
-  public async execute(
-    input: CronAnalyzerInput
-  ): Promise<CapabilityResult<CronAnalyzerOutput>> {
+  public async execute(input: CronAnalyzerInput): Promise<CapabilityResult<CronAnalyzerOutput>> {
     const {
       expression,
       operation = "explain",
@@ -544,7 +571,8 @@ export class CronAnalyzerCapability
           normalizedExpression: parseRes.normalized,
           valid: false,
           errors: parseRes.errors,
-          dialect: "Standard 5-field cron (min, hour, dom, month, dow) + optional seconds & standard macros (@daily, @weekly)",
+          dialect:
+            "Standard 5-field cron (min, hour, dom, month, dow) + optional seconds & standard macros (@daily, @weekly)",
         },
       };
     }
@@ -561,7 +589,8 @@ export class CronAnalyzerCapability
           normalizedExpression: parseRes.normalized,
           valid: true,
           explanation,
-          dialect: "Standard 5-field cron (min, hour, dom, month, dow) + optional seconds & standard macros (@daily, @weekly)",
+          dialect:
+            "Standard 5-field cron (min, hour, dom, month, dow) + optional seconds & standard macros (@daily, @weekly)",
         },
       };
     }
@@ -576,14 +605,18 @@ export class CronAnalyzerCapability
           valid: true,
           fields,
           explanation,
-          dialect: "Standard 5-field cron (min, hour, dom, month, dow) + optional seconds & standard macros (@daily, @weekly)",
+          dialect:
+            "Standard 5-field cron (min, hour, dom, month, dow) + optional seconds & standard macros (@daily, @weekly)",
         },
       };
     }
 
     if (operation === "next_matches") {
       const matches = calculateNextMatches(fields, baseTime, count, timezone);
-      const baseTimeUsed = typeof baseTime === "number" ? new Date(baseTime > 1e11 ? baseTime : baseTime * 1000).toISOString() : String(baseTime);
+      const baseTimeUsed =
+        typeof baseTime === "number"
+          ? new Date(baseTime > 1e11 ? baseTime : baseTime * 1000).toISOString()
+          : String(baseTime);
 
       return {
         success: true,
@@ -596,7 +629,8 @@ export class CronAnalyzerCapability
           baseTimeUsed,
           timezone,
           matches,
-          dialect: "Standard 5-field cron (min, hour, dom, month, dow) + optional seconds & standard macros (@daily, @weekly)",
+          dialect:
+            "Standard 5-field cron (min, hour, dom, month, dow) + optional seconds & standard macros (@daily, @weekly)",
         },
       };
     }
@@ -610,7 +644,8 @@ export class CronAnalyzerCapability
         normalizedExpression: parseRes.normalized,
         valid: true,
         explanation,
-        dialect: "Standard 5-field cron (min, hour, dom, month, dow) + optional seconds & standard macros (@daily, @weekly)",
+        dialect:
+          "Standard 5-field cron (min, hour, dom, month, dow) + optional seconds & standard macros (@daily, @weekly)",
       },
     };
   }

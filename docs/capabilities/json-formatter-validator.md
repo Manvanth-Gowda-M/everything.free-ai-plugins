@@ -1,25 +1,26 @@
 # JSON Formatter & Validator (`json_formatter_validator`)
 
 ## 1. Overview
+
 The `json_formatter_validator` capability parses, formats (pretty-prints), minifies, validates, and structurally inspects JSON payloads with actionable syntax diagnostics.
 
-* **Category**: `data`
-* **Version**: `1.0.0`
-* **Cost**: 100% Free (₹0 / $0)
-* **Execution**: 100% Local (in-memory)
-* **Privacy**: `local-only` (Zero retention, no content logging)
-* **External Dependencies**: None
+- **Category**: `data`
+- **Version**: `1.0.0`
+- **Cost**: 100% Free (₹0 / $0)
+- **Execution**: 100% Local (in-memory)
+- **Privacy**: `local-only` (Zero retention, no content logging)
+- **External Dependencies**: None
 
 ---
 
 ## 2. Supported Actions
 
-| Action | Description | Output |
-| :--- | :--- | :--- |
-| `format` | Pretty-prints JSON with customizable indentation | Formatted JSON string |
-| `minify` | Compresses JSON by stripping whitespace | Minified compact JSON string |
-| `validate` | Checks JSON syntax and returns error details if invalid | `{ valid: boolean, syntaxError?: {...} }` |
-| `inspect` | Performs structural analysis (root type, key count, depth, byte size) | Structured inspection metrics |
+| Action     | Description                                                           | Output                                    |
+| :--------- | :-------------------------------------------------------------------- | :---------------------------------------- |
+| `format`   | Pretty-prints JSON with customizable indentation                      | Formatted JSON string                     |
+| `minify`   | Compresses JSON by stripping whitespace                               | Minified compact JSON string              |
+| `validate` | Checks JSON syntax and returns error details if invalid               | `{ valid: boolean, syntaxError?: {...} }` |
+| `inspect`  | Performs structural analysis (root type, key count, depth, byte size) | Structured inspection metrics             |
 
 ---
 
@@ -38,13 +39,16 @@ The `json_formatter_validator` capability parses, formats (pretty-prints), minif
 ## 4. Usage Examples
 
 ### Example: Validation with Syntax Diagnostics
+
 ```json
 {
   "jsonString": "{\n  \"name\": \"broken\",\n  \"value\": \n}",
   "action": "validate"
 }
 ```
+
 **Output:**
+
 ```json
 {
   "valid": false,

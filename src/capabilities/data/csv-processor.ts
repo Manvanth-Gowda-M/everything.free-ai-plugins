@@ -46,14 +46,13 @@ export const CsvProcessorInputSchema = z.object({
   filterColumn: z
     .string()
     .optional()
-    .describe("Column name or 0-based column index to filter on (required when operation is 'filter')"),
+    .describe(
+      "Column name or 0-based column index to filter on (required when operation is 'filter')"
+    ),
   filterOperator: CsvFilterOperatorSchema.optional().describe(
     "Safe comparison operator for filtering: 'equals', 'not_equals', 'contains', 'starts_with', 'ends_with', 'greater_than', 'less_than', 'greater_or_equal', 'less_or_equal'"
   ),
-  filterValue: z
-    .string()
-    .optional()
-    .describe("Comparison value for filter condition"),
+  filterValue: z.string().optional().describe("Comparison value for filter condition"),
   // Sort options
   sortColumn: z
     .string()
@@ -169,9 +168,10 @@ function serializeCsv(headers: string[], rows: string[][], delimiter = ","): str
     .join("\n");
 }
 
-export class CsvProcessorCapability
-  implements Capability<typeof CsvProcessorInputSchema, CsvProcessorOutput>
-{
+export class CsvProcessorCapability implements Capability<
+  typeof CsvProcessorInputSchema,
+  CsvProcessorOutput
+> {
   public readonly metadata: CapabilityMetadata = {
     name: "csv_processor",
     version: "1.0.0",
@@ -196,13 +196,16 @@ export class CsvProcessorCapability
       },
       {
         name: "inspect",
-        description: "Performs structural diagnostic analysis (row/col count, header list, empty cells, inferred types)",
+        description:
+          "Performs structural diagnostic analysis (row/col count, header list, empty cells, inferred types)",
         inputDescription: "csvText, delimiter (default ',')",
-        outputDescription: "{ stats: { rowCount, columnCount, headers, emptyCellsCount, columnTypes } }",
+        outputDescription:
+          "{ stats: { rowCount, columnCount, headers, emptyCellsCount, columnTypes } }",
       },
       {
         name: "filter",
-        description: "Filters CSV rows using a safe declarative condition (column, operator, value)",
+        description:
+          "Filters CSV rows using a safe declarative condition (column, operator, value)",
         inputDescription: "csvText, filterColumn, filterOperator, filterValue",
         outputDescription: "{ headers, rows, rowCount }",
       },
@@ -400,9 +403,13 @@ export class CsvProcessorCapability
 
         switch (filterOperator) {
           case "equals":
-            return isNumeric ? cellNum === valNum : cell.toLowerCase() === filterValue.toLowerCase();
+            return isNumeric
+              ? cellNum === valNum
+              : cell.toLowerCase() === filterValue.toLowerCase();
           case "not_equals":
-            return isNumeric ? cellNum !== valNum : cell.toLowerCase() !== filterValue.toLowerCase();
+            return isNumeric
+              ? cellNum !== valNum
+              : cell.toLowerCase() !== filterValue.toLowerCase();
           case "contains":
             return cell.toLowerCase().includes(filterValue.toLowerCase());
           case "starts_with":
@@ -530,7 +537,11 @@ export class CsvProcessorCapability
         const val = row[idx] ?? "";
         if (val === "") {
           record[header] = null;
-        } else if (!isNaN(Number(val)) && !val.startsWith("0x") && !(val.startsWith("0") && val.length > 1 && !val.includes("."))) {
+        } else if (
+          !isNaN(Number(val)) &&
+          !val.startsWith("0x") &&
+          !(val.startsWith("0") && val.length > 1 && !val.includes("."))
+        ) {
           record[header] = Number(val);
         } else if (val.toLowerCase() === "true") {
           record[header] = true;

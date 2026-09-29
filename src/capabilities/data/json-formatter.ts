@@ -24,7 +24,9 @@ export const JsonFormatterInputSchema = z.object({
     .max(8, "Indentation cannot exceed 8 spaces")
     .default(2)
     .optional()
-    .describe("Number of spaces for pretty-print indentation when action is 'format' (default: 2, range: 1-8)"),
+    .describe(
+      "Number of spaces for pretty-print indentation when action is 'format' (default: 2, range: 1-8)"
+    ),
 });
 
 export type JsonFormatterInput = z.infer<typeof JsonFormatterInputSchema>;
@@ -108,9 +110,10 @@ function parseJsonSyntaxError(jsonStr: string, errorMsg: string) {
   };
 }
 
-export class JsonFormatterValidatorCapability
-  implements Capability<typeof JsonFormatterInputSchema, JsonFormatterOutput>
-{
+export class JsonFormatterValidatorCapability implements Capability<
+  typeof JsonFormatterInputSchema,
+  JsonFormatterOutput
+> {
   public readonly metadata: CapabilityMetadata = {
     name: "json_formatter_validator",
     version: "1.0.0",
@@ -147,9 +150,11 @@ export class JsonFormatterValidatorCapability
       },
       {
         name: "inspect",
-        description: "Performs structural inspection returning key counts, max depth, root type, and byte size",
+        description:
+          "Performs structural inspection returning key counts, max depth, root type, and byte size",
         inputDescription: "jsonString",
-        outputDescription: "Structural metadata including maxDepth, keyCount, isArray, and byteSize",
+        outputDescription:
+          "Structural metadata including maxDepth, keyCount, isArray, and byteSize",
       },
     ],
     limits: {
@@ -187,9 +192,7 @@ export class JsonFormatterValidatorCapability
 
   public readonly inputSchema = JsonFormatterInputSchema;
 
-  public async execute(
-    input: JsonFormatterInput
-  ): Promise<CapabilityResult<JsonFormatterOutput>> {
+  public async execute(input: JsonFormatterInput): Promise<CapabilityResult<JsonFormatterOutput>> {
     const { jsonString, action = "format", indent = 2 } = input;
 
     let parsed: unknown;
@@ -233,11 +236,7 @@ export class JsonFormatterValidatorCapability
 
     if (action === "inspect") {
       const rootType = (
-        parsed === null
-          ? "null"
-          : Array.isArray(parsed)
-            ? "array"
-            : typeof parsed
+        parsed === null ? "null" : Array.isArray(parsed) ? "array" : typeof parsed
       ) as JsonInspectionStats["rootType"];
 
       const stats: JsonInspectionStats = {

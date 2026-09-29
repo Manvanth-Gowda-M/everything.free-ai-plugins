@@ -39,9 +39,7 @@ describe("Capability Quality & AI Discoverability Metadata Tests", () => {
       expect(meta.privacy).toBe("local-only");
 
       // Verify standardized categories
-      expect(["data", "text", "encoding", "developer", "utility"]).toContain(
-        meta.category
-      );
+      expect(["data", "text", "encoding", "developer", "utility"]).toContain(meta.category);
 
       // Verify AI usage guidance
       expect(meta.usageGuidance).toBeDefined();

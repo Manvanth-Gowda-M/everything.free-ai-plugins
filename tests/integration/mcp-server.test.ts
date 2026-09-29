@@ -26,10 +26,7 @@ describe("MCP Server Integration (E2E Client Simulation)", () => {
       }
     );
 
-    await Promise.all([
-      mcpServer.connect(serverTransport),
-      client.connect(clientTransport),
-    ]);
+    await Promise.all([mcpServer.connect(serverTransport), client.connect(clientTransport)]);
   });
 
   afterAll(async () => {

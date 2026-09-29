@@ -25,12 +25,16 @@ export const XmlProcessorInputSchema = z.object({
     .max(8, "Indentation cannot exceed 8 spaces")
     .default(2)
     .optional()
-    .describe("Number of spaces for pretty-print indentation when operation is 'format' (default: 2, range: 1-8)"),
+    .describe(
+      "Number of spaces for pretty-print indentation when operation is 'format' (default: 2, range: 1-8)"
+    ),
   preserveAttributes: z
     .boolean()
     .default(true)
     .optional()
-    .describe("Whether to preserve XML attributes as '@attributeName' in 'to_json' conversion (default: true)"),
+    .describe(
+      "Whether to preserve XML attributes as '@attributeName' in 'to_json' conversion (default: true)"
+    ),
 });
 
 export type XmlProcessorInput = z.infer<typeof XmlProcessorInputSchema>;
@@ -106,9 +110,14 @@ function checkForXxe(xml: string): void {
   if (doctypeMatch) {
     const dtdContent = doctypeMatch[0];
     if (/SYSTEM\s+["']|PUBLIC\s+["']/i.test(dtdContent)) {
-      throw new Error("External entity declarations (SYSTEM / PUBLIC) are rejected for security (XXE prevention).");
+      throw new Error(
+        "External entity declarations (SYSTEM / PUBLIC) are rejected for security (XXE prevention)."
+      );
     }
-    if (/<!ENTITY\s+/i.test(dtdContent) && /SYSTEM|PUBLIC|http:\/\/|https:\/\/|file:\/\/|ftp:\/\//i.test(dtdContent)) {
+    if (
+      /<!ENTITY\s+/i.test(dtdContent) &&
+      /SYSTEM|PUBLIC|http:\/\/|https:\/\/|file:\/\/|ftp:\/\//i.test(dtdContent)
+    ) {
       throw new Error("External DTD or external entity expansion is disabled for security.");
     }
   }
@@ -117,7 +126,11 @@ function checkForXxe(xml: string): void {
 /**
  * Parses XML into an in-memory AST safely without external entity expansion.
  */
-function parseXml(xml: string, maxDepthLimit = 100, maxElementLimit = 50_000): { root: XmlNode; stats: XmlInspectionStats } {
+function parseXml(
+  xml: string,
+  maxDepthLimit = 100,
+  maxElementLimit = 50_000
+): { root: XmlNode; stats: XmlInspectionStats } {
   checkForXxe(xml);
 
   let i = 0;
@@ -200,7 +213,9 @@ function parseXml(xml: string, maxDepthLimit = 100, maxElementLimit = 50_000): {
         }
         const top = stack[stack.length - 1];
         if (top.name !== closingTagName) {
-          throw new Error(`Mismatched closing tag: expected </${top.name}>, found </${closingTagName}>.`);
+          throw new Error(
+            `Mismatched closing tag: expected </${top.name}>, found </${closingTagName}>.`
+          );
         }
         stack.pop();
         i = end + 1;
@@ -231,7 +246,12 @@ function parseXml(xml: string, maxDepthLimit = 100, maxElementLimit = 50_000): {
       let attrMatch: RegExpExecArray | null;
       while ((attrMatch = attrRegex.exec(attrString)) !== null) {
         const attrName = attrMatch[1];
-        const attrVal = attrMatch[2] !== undefined ? attrMatch[2] : attrMatch[3] !== undefined ? attrMatch[3] : attrMatch[4];
+        const attrVal =
+          attrMatch[2] !== undefined
+            ? attrMatch[2]
+            : attrMatch[3] !== undefined
+              ? attrMatch[3]
+              : attrMatch[4];
         attributes[attrName] = decodeXmlEntities(attrVal || "");
         attributeCount++;
 
@@ -423,7 +443,9 @@ function xmlNodeToJson(node: XmlNode, preserveAttributes = true): unknown {
     }
 
     const elementChildren = (node.children || []).filter((c) => c.type === "element");
-    const textChildren = (node.children || []).filter((c) => c.type === "text" || c.type === "cdata");
+    const textChildren = (node.children || []).filter(
+      (c) => c.type === "text" || c.type === "cdata"
+    );
 
     if (elementChildren.length === 0 && textChildren.length > 0) {
       const combinedText = textChildren.map((t) => t.text?.trim()).join(" ");
@@ -462,9 +484,10 @@ function xmlNodeToJson(node: XmlNode, preserveAttributes = true): unknown {
   return null;
 }
 
-export class XmlProcessorCapability
-  implements Capability<typeof XmlProcessorInputSchema, XmlProcessorOutput>
-{
+export class XmlProcessorCapability implements Capability<
+  typeof XmlProcessorInputSchema,
+  XmlProcessorOutput
+> {
   public readonly metadata: CapabilityMetadata = {
     name: "xml_processor",
     version: "1.0.0",
@@ -483,9 +506,11 @@ export class XmlProcessorCapability
     operations: [
       {
         name: "inspect",
-        description: "Extracts structural metadata, element counts, attribute metrics, namespaces, and nesting depth",
+        description:
+          "Extracts structural metadata, element counts, attribute metrics, namespaces, and nesting depth",
         inputDescription: "xmlString",
-        outputDescription: "Detailed XML statistics including element count, namespaces, and max depth",
+        outputDescription:
+          "Detailed XML statistics including element count, namespaces, and max depth",
       },
       {
         name: "parse",
@@ -501,13 +526,15 @@ export class XmlProcessorCapability
       },
       {
         name: "minify",
-        description: "Compresses XML into compact single-line string, stripping comments and extra whitespace",
+        description:
+          "Compresses XML into compact single-line string, stripping comments and extra whitespace",
         inputDescription: "xmlString",
         outputDescription: "Minified compact XML string",
       },
       {
         name: "to_json",
-        description: "Converts XML into structured JSON with documented attribute (@attr) and repeated tag array handling",
+        description:
+          "Converts XML into structured JSON with documented attribute (@attr) and repeated tag array handling",
         inputDescription: "xmlString, preserveAttributes (optional, default true)",
         outputDescription: "Structured JSON object representing XML hierarchy",
       },
@@ -523,7 +550,8 @@ export class XmlProcessorCapability
       offlineOnly: true,
       zeroRetention: true,
       noExternalCalls: true,
-      notes: "Strict XXE prevention: external DTDs and external entities (SYSTEM/PUBLIC) are rejected. 100% in-memory parser.",
+      notes:
+        "Strict XXE prevention: external DTDs and external entities (SYSTEM/PUBLIC) are rejected. 100% in-memory parser.",
     },
     usageGuidance: {
       useWhen: [
@@ -549,9 +577,7 @@ export class XmlProcessorCapability
 
   public readonly inputSchema = XmlProcessorInputSchema;
 
-  public async execute(
-    input: XmlProcessorInput
-  ): Promise<CapabilityResult<XmlProcessorOutput>> {
+  public async execute(input: XmlProcessorInput): Promise<CapabilityResult<XmlProcessorOutput>> {
     const { xmlString, operation = "inspect", indent = 2, preserveAttributes = true } = input;
 
     let parsedResult: { root: XmlNode; stats: XmlInspectionStats };

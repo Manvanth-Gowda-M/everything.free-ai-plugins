@@ -56,7 +56,9 @@ export function zodToJsonSchemaProperty(schema: z.ZodTypeAny): JsonSchemaPropert
 
   if (unwrapped instanceof z.ZodNumber) {
     const prop: JsonSchemaProperty = {
-      type: unwrapped._def.checks.some((c: { kind: string }) => c.kind === "int") ? "integer" : "number",
+      type: unwrapped._def.checks.some((c: { kind: string }) => c.kind === "int")
+        ? "integer"
+        : "number",
     };
     if (propDesc) prop.description = propDesc;
     if (defaultValue !== undefined) prop.default = defaultValue;
@@ -121,7 +123,9 @@ export function zodToJsonSchemaProperty(schema: z.ZodTypeAny): JsonSchemaPropert
 /**
  * Converts a ZodObject into standard JSON Schema parameters.
  */
-export function zodToJsonSchema(schema: z.ZodObject<Record<string, z.ZodTypeAny>>): JsonSchemaObject {
+export function zodToJsonSchema(
+  schema: z.ZodObject<Record<string, z.ZodTypeAny>>
+): JsonSchemaObject {
   const shape = schema.shape;
   const properties: Record<string, JsonSchemaProperty> = {};
   const required: string[] = [];

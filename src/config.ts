@@ -31,7 +31,8 @@ export const DEFAULT_CONFIG: AppConfig = {
  * Loads application configuration merging environment variables and optional runtime overrides.
  */
 export function loadConfig(overrides: Partial<AppConfig> = {}): AppConfig {
-  const port = overrides.port ?? (process.env.PORT ? parseInt(process.env.PORT, 10) : DEFAULT_CONFIG.port);
+  const port =
+    overrides.port ?? (process.env.PORT ? parseInt(process.env.PORT, 10) : DEFAULT_CONFIG.port);
   const host = overrides.host ?? (process.env.HOST || DEFAULT_CONFIG.host);
   const maxBodySizeBytes =
     overrides.maxBodySizeBytes ??
@@ -55,9 +56,18 @@ export function loadConfig(overrides: Partial<AppConfig> = {}): AppConfig {
   return {
     port,
     host,
-    maxBodySizeBytes: isNaN(maxBodySizeBytes) || maxBodySizeBytes <= 0 ? DEFAULT_CONFIG.maxBodySizeBytes : maxBodySizeBytes,
-    maxConcurrentRequests: isNaN(maxConcurrentRequests) || maxConcurrentRequests <= 0 ? DEFAULT_CONFIG.maxConcurrentRequests : maxConcurrentRequests,
-    shutdownTimeoutMs: isNaN(shutdownTimeoutMs) || shutdownTimeoutMs <= 0 ? DEFAULT_CONFIG.shutdownTimeoutMs : shutdownTimeoutMs,
+    maxBodySizeBytes:
+      isNaN(maxBodySizeBytes) || maxBodySizeBytes <= 0
+        ? DEFAULT_CONFIG.maxBodySizeBytes
+        : maxBodySizeBytes,
+    maxConcurrentRequests:
+      isNaN(maxConcurrentRequests) || maxConcurrentRequests <= 0
+        ? DEFAULT_CONFIG.maxConcurrentRequests
+        : maxConcurrentRequests,
+    shutdownTimeoutMs:
+      isNaN(shutdownTimeoutMs) || shutdownTimeoutMs <= 0
+        ? DEFAULT_CONFIG.shutdownTimeoutMs
+        : shutdownTimeoutMs,
     logLevel,
   };
 }

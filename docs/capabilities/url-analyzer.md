@@ -1,22 +1,23 @@
 # URL Analyzer (`url_analyzer`)
 
 ## 1. Overview
+
 The `url_analyzer` capability parses, decomposes, normalizes, and inspects URL strings completely offline using standard WHATWG parsing rules.
 
-* **Pack**: `Developer Pack`
-* **Category**: `developer`
-* **Version**: `1.0.0`
-* **Cost**: 100% Free (₹0 / $0)
-* **Execution**: 100% Local (in-memory)
-* **Privacy**: `local-only` (Zero network requests, zero DNS resolution)
-* **External Dependencies**: None
+- **Pack**: `Developer Pack`
+- **Category**: `developer`
+- **Version**: `1.0.0`
+- **Cost**: 100% Free (₹0 / $0)
+- **Execution**: 100% Local (in-memory)
+- **Privacy**: `local-only` (Zero network requests, zero DNS resolution)
+- **External Dependencies**: None
 
 ---
 
 ## 2. Supported Operations
 
-| Operation | Description | Output |
-| :--- | :--- | :--- |
+| Operation | Description                                                                    | Output                                                                                                                                             |
+| :-------- | :----------------------------------------------------------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `analyze` | Decomposes URL into constituent protocol, host, port, path, query params, hash | `{ url, components: { protocol, hostname, port, pathname, search, hash, origin, username, hasPassword, isIpAddress, queryParams, pathSegments } }` |
 
 ---

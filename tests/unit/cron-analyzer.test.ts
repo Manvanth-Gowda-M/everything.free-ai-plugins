@@ -1,5 +1,8 @@
 import { describe, it, expect } from "vitest";
-import { CronAnalyzerCapability, CronAnalyzerOutput } from "../../src/capabilities/utility/cron-analyzer.js";
+import {
+  CronAnalyzerCapability,
+  CronAnalyzerOutput,
+} from "../../src/capabilities/utility/cron-analyzer.js";
 import { ExecutionRunner } from "../../src/core/execution.js";
 
 describe("CronAnalyzerCapability", () => {

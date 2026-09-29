@@ -22,7 +22,8 @@ export const RESOURCE_DEFINITIONS: ResourceDefinition[] = [
   {
     uri: RESOURCE_URIS.CATALOG,
     name: "Capability Catalog",
-    description: "Machine-readable JSON catalog of all 15 capabilities, packs, operations, limits, and security metadata.",
+    description:
+      "Machine-readable JSON catalog of all 15 capabilities, packs, operations, limits, and security metadata.",
     mimeType: "application/json",
   },
   {
@@ -220,7 +221,8 @@ export function registerResources(server: McpServer, registry: CapabilityRegistr
     "capability_catalog",
     RESOURCE_URIS.CATALOG,
     {
-      description: "Machine-readable catalog of all registered capabilities, packs, operations, limits, and security metadata",
+      description:
+        "Machine-readable catalog of all registered capabilities, packs, operations, limits, and security metadata",
       mimeType: "application/json",
     },
     async (uri) => ({

@@ -19,8 +19,7 @@ export class ExecutionRunner {
     options?: ExecutionOptions
   ): Promise<CapabilityResult<TOutput>> {
     const startTime = Date.now();
-    const timeoutMs =
-      options?.timeoutMs ?? capability.metadata.timeoutMs ?? 3000;
+    const timeoutMs = options?.timeoutMs ?? capability.metadata.timeoutMs ?? 3000;
 
     // 1. Validate Input Schema with Zod
     const parseResult = capability.inputSchema.safeParse(rawInput);
@@ -64,8 +63,7 @@ export class ExecutionRunner {
         },
       };
     } catch (err: unknown) {
-      const errorMessage =
-        err instanceof Error ? err.message : "Unknown execution error";
+      const errorMessage = err instanceof Error ? err.message : "Unknown execution error";
       const isTimeout = errorMessage.includes("timed out");
 
       return {

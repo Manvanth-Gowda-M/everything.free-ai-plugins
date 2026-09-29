@@ -61,6 +61,16 @@ describe("Streamable HTTP MCP Integration (Real HTTP Wire Tests)", () => {
     expect(data.timestamp).toBeDefined();
   });
 
+  it("should respond to GET /ready with readiness probe confirmation", async () => {
+    const res = await fetch(`${BASE_URL}/ready`);
+    expect(res.status).toBe(200);
+    const data = await res.json();
+    expect(data.status).toBe("ready");
+    expect(data.ready).toBe(true);
+    expect(data.service).toBe("everything-free-ai-plugins");
+    expect(data.capabilitiesCount).toBe(15);
+  });
+
   it("should respond 404 for unknown endpoints", async () => {
     const res = await fetch(`${BASE_URL}/unknown-path`);
     expect(res.status).toBe(404);

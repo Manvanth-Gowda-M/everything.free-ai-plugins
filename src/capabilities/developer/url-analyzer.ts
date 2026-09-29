@@ -6,7 +6,9 @@ export const UrlAnalyzerInputSchema = z.object({
     .string()
     .min(1, "URL string cannot be empty")
     .max(4096, "URL exceeds maximum supported length limit of 4096 characters")
-    .describe("The URL string to parse, inspect, and analyze (e.g. 'https://api.example.com:8080/v1/users?role=admin&limit=10#profile')"),
+    .describe(
+      "The URL string to parse, inspect, and analyze (e.g. 'https://api.example.com:8080/v1/users?role=admin&limit=10#profile')"
+    ),
 });
 
 export type UrlAnalyzerInput = z.infer<typeof UrlAnalyzerInputSchema>;
@@ -44,9 +46,10 @@ function checkIsIp(hostname: string): boolean {
   return false;
 }
 
-export class UrlAnalyzerCapability
-  implements Capability<typeof UrlAnalyzerInputSchema, UrlAnalyzerOutput>
-{
+export class UrlAnalyzerCapability implements Capability<
+  typeof UrlAnalyzerInputSchema,
+  UrlAnalyzerOutput
+> {
   public readonly metadata: CapabilityMetadata = {
     name: "url_analyzer",
     version: "1.0.0",
@@ -65,7 +68,8 @@ export class UrlAnalyzerCapability
     operations: [
       {
         name: "analyze",
-        description: "Decomposes URL into protocol, host, port, path, query params, hash, and origin using WHATWG rules",
+        description:
+          "Decomposes URL into protocol, host, port, path, query params, hash, and origin using WHATWG rules",
         inputDescription: "url: string",
         outputDescription: "{ url: string, components: UrlComponents }",
       },
@@ -79,7 +83,8 @@ export class UrlAnalyzerCapability
       offlineOnly: true,
       zeroRetention: true,
       noExternalCalls: true,
-      notes: "Strict offline parser; zero network requests, zero DNS resolution, anti-SSRF guarantee",
+      notes:
+        "Strict offline parser; zero network requests, zero DNS resolution, anti-SSRF guarantee",
     },
     usageGuidance: {
       useWhen: [
@@ -138,9 +143,7 @@ export class UrlAnalyzerCapability
       }
     });
 
-    const pathSegments = parsed.pathname
-      .split("/")
-      .filter((seg) => seg.length > 0);
+    const pathSegments = parsed.pathname.split("/").filter((seg) => seg.length > 0);
 
     const isIp = checkIsIp(parsed.hostname);
 

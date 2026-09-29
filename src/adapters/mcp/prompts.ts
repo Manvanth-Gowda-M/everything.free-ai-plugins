@@ -16,60 +16,107 @@ export interface PromptDefinition {
 export const PROMPT_DEFINITIONS: PromptDefinition[] = [
   {
     name: "analyze_json",
-    description: "Guides the AI assistant to inspect, validate, format, or minify JSON data locally using json_formatter_validator.",
+    description:
+      "Guides the AI assistant to inspect, validate, format, or minify JSON data locally using json_formatter_validator.",
     arguments: [
-      { name: "json", description: "The JSON string to analyze, format, or validate", required: true },
-      { name: "operation", description: "Desired action (validate, format, minify, inspect)", required: false },
+      {
+        name: "json",
+        description: "The JSON string to analyze, format, or validate",
+        required: true,
+      },
+      {
+        name: "operation",
+        description: "Desired action (validate, format, minify, inspect)",
+        required: false,
+      },
     ],
   },
   {
     name: "analyze_csv",
-    description: "Guides the AI assistant to parse, inspect, filter, or convert CSV datasets locally using csv_processor.",
+    description:
+      "Guides the AI assistant to parse, inspect, filter, or convert CSV datasets locally using csv_processor.",
     arguments: [
       { name: "csv", description: "The raw CSV text to analyze", required: true },
-      { name: "goal", description: "Desired goal or operation (inspect, filter, sort, to_json)", required: false },
+      {
+        name: "goal",
+        description: "Desired goal or operation (inspect, filter, sort, to_json)",
+        required: false,
+      },
     ],
   },
   {
     name: "analyze_text",
-    description: "Guides the AI assistant to compare differences or extract Markdown structure locally using text_diff_analyzer or markdown_processor.",
+    description:
+      "Guides the AI assistant to compare differences or extract Markdown structure locally using text_diff_analyzer or markdown_processor.",
     arguments: [
       { name: "text", description: "Primary text or Markdown content", required: true },
       { name: "secondaryText", description: "Modified text for diff comparison", required: false },
-      { name: "focus", description: "Focus area (diff, structure, toc, headings)", required: false },
+      {
+        name: "focus",
+        description: "Focus area (diff, structure, toc, headings)",
+        required: false,
+      },
     ],
   },
   {
     name: "analyze_web_document",
-    description: "Guides the AI assistant to inspect, extract, or sanitize offline HTML markup or analyze URLs without network access.",
+    description:
+      "Guides the AI assistant to inspect, extract, or sanitize offline HTML markup or analyze URLs without network access.",
     arguments: [
-      { name: "documentText", description: "HTML content or URL string to analyze offline", required: true },
-      { name: "focus", description: "Target analysis focus (headings, links, sanitize, url-components)", required: false },
+      {
+        name: "documentText",
+        description: "HTML content or URL string to analyze offline",
+        required: true,
+      },
+      {
+        name: "focus",
+        description: "Target analysis focus (headings, links, sanitize, url-components)",
+        required: false,
+      },
     ],
   },
   {
     name: "developer_debug",
-    description: "Guides the AI assistant to test regex, inspect JWT tokens, decompose URLs, analyze MIME types, or format SQL offline.",
+    description:
+      "Guides the AI assistant to test regex, inspect JWT tokens, decompose URLs, analyze MIME types, or format SQL offline.",
     arguments: [
       { name: "content", description: "Payload, token, regex, or query to debug", required: true },
-      { name: "artifactType", description: "Type of artifact (regex, jwt, url, mime, sql, xml)", required: false },
+      {
+        name: "artifactType",
+        description: "Type of artifact (regex, jwt, url, mime, sql, xml)",
+        required: false,
+      },
     ],
   },
   {
     name: "data_transform",
-    description: "Guides the AI assistant to convert structured data between JSON, CSV, and XML formats offline.",
+    description:
+      "Guides the AI assistant to convert structured data between JSON, CSV, and XML formats offline.",
     arguments: [
       { name: "data", description: "Input data string to transform", required: true },
       { name: "sourceFormat", description: "Source data format (json, csv, xml)", required: true },
-      { name: "targetFormat", description: "Target format for output (json, csv, xml)", required: true },
+      {
+        name: "targetFormat",
+        description: "Target format for output (json, csv, xml)",
+        required: true,
+      },
     ],
   },
   {
     name: "schedule_analysis",
-    description: "Guides the AI assistant to explain, validate, or compute next run times for cron schedules using cron_analyzer.",
+    description:
+      "Guides the AI assistant to explain, validate, or compute next run times for cron schedules using cron_analyzer.",
     arguments: [
-      { name: "expression", description: "Cron expression string (e.g., '0 9 * * 1-5' or '@hourly')", required: true },
-      { name: "baseTimestamp", description: "Optional ISO 8601 timestamp reference", required: false },
+      {
+        name: "expression",
+        description: "Cron expression string (e.g., '0 9 * * 1-5' or '@hourly')",
+        required: true,
+      },
+      {
+        name: "baseTimestamp",
+        description: "Optional ISO 8601 timestamp reference",
+        required: false,
+      },
     ],
   },
 ];
@@ -114,7 +161,11 @@ ${args.csv}
 Security Reminder: Local processing only with zero data retention.`;
 }
 
-export function buildAnalyzeTextPrompt(args: { text: string; secondaryText?: string; focus?: string }): string {
+export function buildAnalyzeTextPrompt(args: {
+  text: string;
+  secondaryText?: string;
+  focus?: string;
+}): string {
   const isDiff = Boolean(args.secondaryText);
   return `Please analyze the following text payload locally.
 Focus: ${args.focus || (isDiff ? "diff" : "markdown structure")}
@@ -128,7 +179,10 @@ ${isDiff ? `Compare the two versions below and summarize additions, deletions, a
 Security Reminder: Strictly local processing.`;
 }
 
-export function buildAnalyzeWebDocumentPrompt(args: { documentText: string; focus?: string }): string {
+export function buildAnalyzeWebDocumentPrompt(args: {
+  documentText: string;
+  focus?: string;
+}): string {
   return `Please analyze the provided web document markup or URL locally.
 Focus: ${args.focus || "inspect"}
 
@@ -149,7 +203,10 @@ ${args.documentText}
 Security Reminder: Zero outbound network traffic is permitted.`;
 }
 
-export function buildDeveloperDebugPrompt(args: { content: string; artifactType?: string }): string {
+export function buildDeveloperDebugPrompt(args: {
+  content: string;
+  artifactType?: string;
+}): string {
   return `Please debug the supplied developer artifact using Everything.Free local tools.
 Artifact Type: ${args.artifactType || "auto-detect"}
 
@@ -169,7 +226,11 @@ ${args.content}
 Security Reminder: All debugging tools operate offline and in-memory.`;
 }
 
-export function buildDataTransformPrompt(args: { data: string; sourceFormat: string; targetFormat: string }): string {
+export function buildDataTransformPrompt(args: {
+  data: string;
+  sourceFormat: string;
+  targetFormat: string;
+}): string {
   return `Please convert the provided structured data from ${args.sourceFormat.toUpperCase()} to ${args.targetFormat.toUpperCase()}.
 
 Capabilities to utilize:
@@ -189,7 +250,10 @@ ${args.data}
 Security Reminder: Perform bounded deterministic local conversion in volatile memory.`;
 }
 
-export function buildScheduleAnalysisPrompt(args: { expression: string; baseTimestamp?: string }): string {
+export function buildScheduleAnalysisPrompt(args: {
+  expression: string;
+  baseTimestamp?: string;
+}): string {
   return `Please explain and analyze the cron expression '${args.expression}' using the 'cron_analyzer' capability.
 Base Reference Timestamp: ${args.baseTimestamp || "2025-01-01T00:00:00.000Z"}
 
@@ -216,7 +280,10 @@ export function registerPrompts(server: McpServer): void {
     "Inspect, validate, format, or minify JSON data locally",
     {
       json: z.string().describe("The JSON string to analyze, format, or validate"),
-      operation: z.enum(["validate", "format", "minify", "inspect"]).optional().describe("Desired action (default: validate)"),
+      operation: z
+        .enum(["validate", "format", "minify", "inspect"])
+        .optional()
+        .describe("Desired action (default: validate)"),
     },
     async (args) => ({
       description: "Analyze JSON data using json_formatter_validator",
@@ -260,7 +327,10 @@ export function registerPrompts(server: McpServer): void {
     "Compare text diffs or extract Markdown structure locally",
     {
       text: z.string().describe("Primary text or Markdown content to analyze"),
-      secondaryText: z.string().optional().describe("Modified text when performing a diff comparison"),
+      secondaryText: z
+        .string()
+        .optional()
+        .describe("Modified text when performing a diff comparison"),
       focus: z.string().optional().describe("Focus area (diff, structure, toc, headings)"),
     },
     async (args) => ({
@@ -283,7 +353,10 @@ export function registerPrompts(server: McpServer): void {
     "Inspect, extract, or sanitize offline HTML markup or URLs without network requests",
     {
       documentText: z.string().describe("HTML markup string or URL string to inspect or clean"),
-      focus: z.string().optional().describe("Target analysis focus (headings, links, sanitize, url-components)"),
+      focus: z
+        .string()
+        .optional()
+        .describe("Target analysis focus (headings, links, sanitize, url-components)"),
     },
     async (args) => ({
       description: "Analyze HTML markup or URL using html_processor or url_analyzer",
@@ -305,7 +378,10 @@ export function registerPrompts(server: McpServer): void {
     "Debug regex, inspect JWT tokens, decompose URLs, or analyze MIME byte headers",
     {
       content: z.string().describe("Payload, token, regex, or query to debug"),
-      artifactType: z.enum(["regex", "jwt", "url", "mime", "sql", "xml"]).optional().describe("Specific debugging artifact type"),
+      artifactType: z
+        .enum(["regex", "jwt", "url", "mime", "sql", "xml"])
+        .optional()
+        .describe("Specific debugging artifact type"),
     },
     async (args) => ({
       description: "Developer debugging workflow",
@@ -350,7 +426,10 @@ export function registerPrompts(server: McpServer): void {
     "Explain, validate, or compute next run times for cron schedules",
     {
       expression: z.string().describe("Cron expression string (e.g. '0 9 * * 1-5' or '@daily')"),
-      baseTimestamp: z.string().optional().describe("Optional ISO 8601 base timestamp for deterministic recurrence calculation"),
+      baseTimestamp: z
+        .string()
+        .optional()
+        .describe("Optional ISO 8601 base timestamp for deterministic recurrence calculation"),
     },
     async (args) => ({
       description: "Analyze cron schedule expression",

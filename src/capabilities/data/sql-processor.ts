@@ -24,7 +24,9 @@ export const SqlProcessorInputSchema = z.object({
     .max(8, "Indentation cannot exceed 8 spaces")
     .default(2)
     .optional()
-    .describe("Number of spaces for pretty-print indentation when operation is 'format' (default: 2, range: 1-8)"),
+    .describe(
+      "Number of spaces for pretty-print indentation when operation is 'format' (default: 2, range: 1-8)"
+    ),
   uppercaseKeywords: z
     .boolean()
     .default(true)
@@ -91,19 +93,104 @@ export interface SqlProcessorOutput {
 }
 
 const SQL_KEYWORDS = new Set([
-  "SELECT", "FROM", "WHERE", "JOIN", "INNER", "LEFT", "RIGHT", "FULL", "OUTER", "CROSS", "ON",
-  "GROUP", "BY", "ORDER", "HAVING", "LIMIT", "OFFSET", "UNION", "ALL", "EXCEPT", "INTERSECT",
-  "INSERT", "INTO", "VALUES", "UPDATE", "SET", "DELETE", "CREATE", "TABLE", "ALTER", "DROP",
-  "INDEX", "VIEW", "DATABASE", "SCHEMA", "AND", "OR", "NOT", "IN", "IS", "NULL", "LIKE", "ILIKE",
-  "BETWEEN", "EXISTS", "AS", "DISTINCT", "CASE", "WHEN", "THEN", "ELSE", "END", "ASC", "DESC",
-  "PRIMARY", "KEY", "FOREIGN", "REFERENCES", "DEFAULT", "CONSTRAINT", "CHECK", "UNIQUE",
-  "AUTO_INCREMENT", "CASCADE", "RETURNING", "WITH", "RECURSIVE", "CAST", "COALESCE", "NULLIF",
-  "COUNT", "SUM", "AVG", "MIN", "MAX", "OVER", "PARTITION", "BEGIN", "COMMIT", "ROLLBACK",
-  "IF", "REPLACE", "TRUNCATE", "EXPLAIN", "ANALYZE"
+  "SELECT",
+  "FROM",
+  "WHERE",
+  "JOIN",
+  "INNER",
+  "LEFT",
+  "RIGHT",
+  "FULL",
+  "OUTER",
+  "CROSS",
+  "ON",
+  "GROUP",
+  "BY",
+  "ORDER",
+  "HAVING",
+  "LIMIT",
+  "OFFSET",
+  "UNION",
+  "ALL",
+  "EXCEPT",
+  "INTERSECT",
+  "INSERT",
+  "INTO",
+  "VALUES",
+  "UPDATE",
+  "SET",
+  "DELETE",
+  "CREATE",
+  "TABLE",
+  "ALTER",
+  "DROP",
+  "INDEX",
+  "VIEW",
+  "DATABASE",
+  "SCHEMA",
+  "AND",
+  "OR",
+  "NOT",
+  "IN",
+  "IS",
+  "NULL",
+  "LIKE",
+  "ILIKE",
+  "BETWEEN",
+  "EXISTS",
+  "AS",
+  "DISTINCT",
+  "CASE",
+  "WHEN",
+  "THEN",
+  "ELSE",
+  "END",
+  "ASC",
+  "DESC",
+  "PRIMARY",
+  "KEY",
+  "FOREIGN",
+  "REFERENCES",
+  "DEFAULT",
+  "CONSTRAINT",
+  "CHECK",
+  "UNIQUE",
+  "AUTO_INCREMENT",
+  "CASCADE",
+  "RETURNING",
+  "WITH",
+  "RECURSIVE",
+  "CAST",
+  "COALESCE",
+  "NULLIF",
+  "COUNT",
+  "SUM",
+  "AVG",
+  "MIN",
+  "MAX",
+  "OVER",
+  "PARTITION",
+  "BEGIN",
+  "COMMIT",
+  "ROLLBACK",
+  "IF",
+  "REPLACE",
+  "TRUNCATE",
+  "EXPLAIN",
+  "ANALYZE",
 ]);
 
 interface Token {
-  type: "keyword" | "identifier" | "string" | "number" | "operator" | "punctuation" | "comment" | "placeholder" | "whitespace";
+  type:
+    | "keyword"
+    | "identifier"
+    | "string"
+    | "number"
+    | "operator"
+    | "punctuation"
+    | "comment"
+    | "placeholder"
+    | "whitespace";
   value: string;
   raw: string;
   line: number;
@@ -149,7 +236,13 @@ function tokenizeSql(sql: string): Token[] {
         col++;
         i++;
       }
-      tokens.push({ type: "comment", value: comment, raw: comment, line: startLine, col: startCol });
+      tokens.push({
+        type: "comment",
+        value: comment,
+        raw: comment,
+        line: startLine,
+        col: startCol,
+      });
       continue;
     }
 
@@ -172,7 +265,13 @@ function tokenizeSql(sql: string): Token[] {
         i += 2;
         col += 2;
       }
-      tokens.push({ type: "comment", value: comment, raw: comment, line: startLine, col: startCol });
+      tokens.push({
+        type: "comment",
+        value: comment,
+        raw: comment,
+        line: startLine,
+        col: startCol,
+      });
       continue;
     }
 
@@ -214,7 +313,11 @@ function tokenizeSql(sql: string): Token[] {
     }
 
     // 4. Placeholders (?, $1, :name, @param)
-    if (char === "?" || (char === "$" && /\d/.test(sql[i + 1])) || ((char === ":" || char === "@") && /[a-zA-Z_]/.test(sql[i + 1]))) {
+    if (
+      char === "?" ||
+      (char === "$" && /\d/.test(sql[i + 1])) ||
+      ((char === ":" || char === "@") && /[a-zA-Z_]/.test(sql[i + 1]))
+    ) {
       let ph = char;
       i++;
       col++;
@@ -342,45 +445,56 @@ function formatSql(tokens: Token[], indentSpaces: number, uppercaseKeywords: boo
     }
 
     // Determine if this keyword starts a new clause line
-    const isSecondWordOfClause = prev && (
-      (prev.value === "LEFT" && token.value === "JOIN") ||
-      (prev.value === "RIGHT" && token.value === "JOIN") ||
-      (prev.value === "INNER" && token.value === "JOIN") ||
-      (prev.value === "FULL" && token.value === "JOIN") ||
-      (prev.value === "CROSS" && token.value === "JOIN") ||
-      (prev.value === "OUTER" && token.value === "JOIN") ||
-      (prev.value === "GROUP" && token.value === "BY") ||
-      (prev.value === "ORDER" && token.value === "BY") ||
-      (prev.value === "INSERT" && token.value === "INTO") ||
-      (prev.value === "UNION" && token.value === "ALL") ||
-      (prev.value === "CREATE" && token.value === "TABLE") ||
-      (prev.value === "ALTER" && token.value === "TABLE") ||
-      (prev.value === "DROP" && token.value === "TABLE")
-    );
+    const isSecondWordOfClause =
+      prev &&
+      ((prev.value === "LEFT" && token.value === "JOIN") ||
+        (prev.value === "RIGHT" && token.value === "JOIN") ||
+        (prev.value === "INNER" && token.value === "JOIN") ||
+        (prev.value === "FULL" && token.value === "JOIN") ||
+        (prev.value === "CROSS" && token.value === "JOIN") ||
+        (prev.value === "OUTER" && token.value === "JOIN") ||
+        (prev.value === "GROUP" && token.value === "BY") ||
+        (prev.value === "ORDER" && token.value === "BY") ||
+        (prev.value === "INSERT" && token.value === "INTO") ||
+        (prev.value === "UNION" && token.value === "ALL") ||
+        (prev.value === "CREATE" && token.value === "TABLE") ||
+        (prev.value === "ALTER" && token.value === "TABLE") ||
+        (prev.value === "DROP" && token.value === "TABLE"));
 
-    const isFirstWordOfMultiClause = next && (
-      (token.value === "LEFT" && next.value === "JOIN") ||
-      (token.value === "RIGHT" && next.value === "JOIN") ||
-      (token.value === "INNER" && next.value === "JOIN") ||
-      (token.value === "FULL" && next.value === "JOIN") ||
-      (token.value === "CROSS" && next.value === "JOIN") ||
-      (token.value === "OUTER" && next.value === "JOIN") ||
-      (token.value === "GROUP" && next.value === "BY") ||
-      (token.value === "ORDER" && next.value === "BY") ||
-      (token.value === "INSERT" && next.value === "INTO") ||
-      (token.value === "UNION" && next.value === "ALL") ||
-      (token.value === "CREATE" && next.value === "TABLE") ||
-      (token.value === "ALTER" && next.value === "TABLE") ||
-      (token.value === "DROP" && next.value === "TABLE")
-    );
+    const isFirstWordOfMultiClause =
+      next &&
+      ((token.value === "LEFT" && next.value === "JOIN") ||
+        (token.value === "RIGHT" && next.value === "JOIN") ||
+        (token.value === "INNER" && next.value === "JOIN") ||
+        (token.value === "FULL" && next.value === "JOIN") ||
+        (token.value === "CROSS" && next.value === "JOIN") ||
+        (token.value === "OUTER" && next.value === "JOIN") ||
+        (token.value === "GROUP" && next.value === "BY") ||
+        (token.value === "ORDER" && next.value === "BY") ||
+        (token.value === "INSERT" && next.value === "INTO") ||
+        (token.value === "UNION" && next.value === "ALL") ||
+        (token.value === "CREATE" && next.value === "TABLE") ||
+        (token.value === "ALTER" && next.value === "TABLE") ||
+        (token.value === "DROP" && next.value === "TABLE"));
 
     const isSingleMajorClause =
       token.type === "keyword" &&
       !isSecondWordOfClause &&
       (isFirstWordOfMultiClause ||
-        ["SELECT", "FROM", "WHERE", "HAVING", "LIMIT", "OFFSET", "JOIN", "VALUES", "UPDATE", "SET", "DELETE", "WITH"].includes(
-          token.value
-        ));
+        [
+          "SELECT",
+          "FROM",
+          "WHERE",
+          "HAVING",
+          "LIMIT",
+          "OFFSET",
+          "JOIN",
+          "VALUES",
+          "UPDATE",
+          "SET",
+          "DELETE",
+          "WITH",
+        ].includes(token.value));
 
     if (isSingleMajorClause) {
       if (!isNewLine && result.length > 0 && !result.endsWith("(")) {
@@ -429,13 +543,21 @@ function minifySql(tokens: Token[]): string {
     const prev = filtered[i - 1];
 
     if (prev) {
-      const prevWord = prev.type === "keyword" || prev.type === "identifier" || prev.type === "number";
-      const currWord = token.type === "keyword" || token.type === "identifier" || token.type === "number";
+      const prevWord =
+        prev.type === "keyword" || prev.type === "identifier" || prev.type === "number";
+      const currWord =
+        token.type === "keyword" || token.type === "identifier" || token.type === "number";
 
       if (
         (prevWord && currWord) ||
         (prev.type === "string" && (token.value === "AS" || currWord)) ||
-        (prevWord && token.type === "string" && (prev.value === "AS" || prev.value === "LIKE" || prev.value === "IN" || prev.value === "VALUES" || prev.value === "DEFAULT"))
+        (prevWord &&
+          token.type === "string" &&
+          (prev.value === "AS" ||
+            prev.value === "LIKE" ||
+            prev.value === "IN" ||
+            prev.value === "VALUES" ||
+            prev.value === "DEFAULT"))
       ) {
         result += " ";
       }
@@ -498,7 +620,8 @@ function inspectSql(_sql: string, tokens: Token[]): SqlInspectionStats {
     else if (firstWord === "ALTER" && secondWord === "TABLE") stmtType = "ALTER_TABLE";
     else if (firstWord === "DROP") stmtType = "DROP";
     else if (firstWord === "CREATE" && secondWord === "INDEX") stmtType = "CREATE_INDEX";
-    else if (firstWord === "BEGIN" || firstWord === "COMMIT" || firstWord === "ROLLBACK") stmtType = "TRANSACTION";
+    else if (firstWord === "BEGIN" || firstWord === "COMMIT" || firstWord === "ROLLBACK")
+      stmtType = "TRANSACTION";
 
     for (let i = 0; i < stmtTokens.length; i++) {
       const t = stmtTokens[i];
@@ -529,7 +652,12 @@ function inspectSql(_sql: string, tokens: Token[]): SqlInspectionStats {
           t.value === "INTO" ||
           t.value === "UPDATE" ||
           t.value === "TABLE" ||
-          (t.value === "TABLE" && prev && (prev.value === "CREATE" || prev.value === "DROP" || prev.value === "ALTER" || prev.value === "TRUNCATE"))) &&
+          (t.value === "TABLE" &&
+            prev &&
+            (prev.value === "CREATE" ||
+              prev.value === "DROP" ||
+              prev.value === "ALTER" ||
+              prev.value === "TRUNCATE"))) &&
         next &&
         (next.type === "identifier" || next.type === "string")
       ) {
@@ -540,9 +668,10 @@ function inspectSql(_sql: string, tokens: Token[]): SqlInspectionStats {
 
       // JOIN table
       if (t.value === "JOIN" && next && (next.type === "identifier" || next.type === "string")) {
-        const joinType = prev && ["LEFT", "RIGHT", "INNER", "FULL", "CROSS", "OUTER"].includes(prev.value)
-          ? `${prev.value} JOIN`
-          : "INNER JOIN";
+        const joinType =
+          prev && ["LEFT", "RIGHT", "INNER", "FULL", "CROSS", "OUTER"].includes(prev.value)
+            ? `${prev.value} JOIN`
+            : "INNER JOIN";
         const tblName = next.raw.replace(/[`"']/g, "");
         joins.push({ type: joinType, table: tblName });
         tablesInStmt.add(tblName);
@@ -580,7 +709,10 @@ function inspectSql(_sql: string, tokens: Token[]): SqlInspectionStats {
 /**
  * Performs dialect-neutral syntax validation on SQL tokens.
  */
-function validateSql(sql: string, tokens: Token[]): { valid: boolean; errors: SqlValidationError[]; warnings: string[] } {
+function validateSql(
+  sql: string,
+  tokens: Token[]
+): { valid: boolean; errors: SqlValidationError[]; warnings: string[] } {
   const errors: SqlValidationError[] = [];
   const warnings: string[] = [];
 
@@ -636,9 +768,10 @@ function validateSql(sql: string, tokens: Token[]): { valid: boolean; errors: Sq
   };
 }
 
-export class SqlProcessorCapability
-  implements Capability<typeof SqlProcessorInputSchema, SqlProcessorOutput>
-{
+export class SqlProcessorCapability implements Capability<
+  typeof SqlProcessorInputSchema,
+  SqlProcessorOutput
+> {
   public readonly metadata: CapabilityMetadata = {
     name: "sql_processor",
     version: "1.0.0",
@@ -657,25 +790,32 @@ export class SqlProcessorCapability
     operations: [
       {
         name: "format",
-        description: "Pretty-prints SQL with structured clause indentation and keyword capitalization",
-        inputDescription: "sql, indent (optional, default 2), uppercaseKeywords (optional, default true)",
+        description:
+          "Pretty-prints SQL with structured clause indentation and keyword capitalization",
+        inputDescription:
+          "sql, indent (optional, default 2), uppercaseKeywords (optional, default true)",
         outputDescription: "Formatted multiline SQL string with aligned clauses",
       },
       {
         name: "inspect",
-        description: "Extracts structural information, statement types, referenced tables, JOINs, parameters, and nesting depth",
+        description:
+          "Extracts structural information, statement types, referenced tables, JOINs, parameters, and nesting depth",
         inputDescription: "sql",
-        outputDescription: "Detailed structural stats including statement count, tables, JOINs, and parameters",
+        outputDescription:
+          "Detailed structural stats including statement count, tables, JOINs, and parameters",
       },
       {
         name: "validate",
-        description: "Checks dialect-neutral SQL syntax, balanced parentheses, and string literal integrity",
+        description:
+          "Checks dialect-neutral SQL syntax, balanced parentheses, and string literal integrity",
         inputDescription: "sql",
-        outputDescription: "{ valid: boolean, errors?: SqlValidationError[], dialectNotice: string }",
+        outputDescription:
+          "{ valid: boolean, errors?: SqlValidationError[], dialectNotice: string }",
       },
       {
         name: "minify",
-        description: "Compresses SQL into a single compact line, stripping comments while preserving literals",
+        description:
+          "Compresses SQL into a single compact line, stripping comments while preserving literals",
         inputDescription: "sql",
         outputDescription: "Minified compact single-line SQL string",
       },
@@ -717,9 +857,7 @@ export class SqlProcessorCapability
 
   public readonly inputSchema = SqlProcessorInputSchema;
 
-  public async execute(
-    input: SqlProcessorInput
-  ): Promise<CapabilityResult<SqlProcessorOutput>> {
+  public async execute(input: SqlProcessorInput): Promise<CapabilityResult<SqlProcessorOutput>> {
     const { sql, operation = "format", indent = 2, uppercaseKeywords = true } = input;
 
     const tokens = tokenizeSql(sql);

@@ -6,17 +6,23 @@ export const MimeAnalyzerInputSchema = z.object({
     .string()
     .max(500, "Filename exceeds maximum length of 500 characters")
     .optional()
-    .describe("Filename or filepath to analyze extension from (e.g. 'photo.png', 'archive.tar.gz', 'document.pdf')"),
+    .describe(
+      "Filename or filepath to analyze extension from (e.g. 'photo.png', 'archive.tar.gz', 'document.pdf')"
+    ),
   declaredMimeType: z
     .string()
     .max(200, "Declared MIME type exceeds maximum length of 200 characters")
     .optional()
-    .describe("Declared or claimed MIME type to compare against (e.g. 'image/png', 'application/pdf')"),
+    .describe(
+      "Declared or claimed MIME type to compare against (e.g. 'image/png', 'application/pdf')"
+    ),
   byteSample: z
     .string()
     .max(100_000, "Byte sample exceeds maximum size limit of 100KB")
     .optional()
-    .describe("Hex string (e.g. '89504E470D0A1A0A') or Base64 string representing leading header bytes of the file"),
+    .describe(
+      "Hex string (e.g. '89504E470D0A1A0A') or Base64 string representing leading header bytes of the file"
+    ),
   sampleEncoding: z
     .enum(["auto", "hex", "base64"])
     .default("auto")
@@ -82,7 +88,16 @@ const MAGIC_DEFINITIONS: MagicDefinition[] = [
     category: "image",
     extension: ".png",
     description: "Portable Network Graphics (PNG) image",
-    match: (b) => b.length >= 8 && b[0] === 0x89 && b[1] === 0x50 && b[2] === 0x4e && b[3] === 0x47 && b[4] === 0x0d && b[5] === 0x0a && b[6] === 0x1a && b[7] === 0x0a,
+    match: (b) =>
+      b.length >= 8 &&
+      b[0] === 0x89 &&
+      b[1] === 0x50 &&
+      b[2] === 0x4e &&
+      b[3] === 0x47 &&
+      b[4] === 0x0d &&
+      b[5] === 0x0a &&
+      b[6] === 0x1a &&
+      b[7] === 0x0a,
   },
   {
     name: "JPEG",
@@ -114,7 +129,10 @@ const MAGIC_DEFINITIONS: MagicDefinition[] = [
     category: "image",
     extension: ".webp",
     description: "WebP image",
-    match: (b) => b.length >= 12 && b.subarray(0, 4).toString("ascii") === "RIFF" && b.subarray(8, 12).toString("ascii") === "WEBP",
+    match: (b) =>
+      b.length >= 12 &&
+      b.subarray(0, 4).toString("ascii") === "RIFF" &&
+      b.subarray(8, 12).toString("ascii") === "WEBP",
   },
   {
     name: "BMP",
@@ -180,7 +198,12 @@ const MAGIC_DEFINITIONS: MagicDefinition[] = [
     category: "archive",
     extension: ".zip",
     description: "ZIP archive / OpenDocument / Office Open XML container",
-    match: (b) => b.length >= 4 && b[0] === 0x50 && b[1] === 0x4b && (b[2] === 0x03 || b[2] === 0x05 || b[2] === 0x07) && (b[3] === 0x04 || b[3] === 0x06 || b[3] === 0x08),
+    match: (b) =>
+      b.length >= 4 &&
+      b[0] === 0x50 &&
+      b[1] === 0x4b &&
+      (b[2] === 0x03 || b[2] === 0x05 || b[2] === 0x07) &&
+      (b[3] === 0x04 || b[3] === 0x06 || b[3] === 0x08),
   },
   {
     name: "GZIP",
@@ -204,7 +227,14 @@ const MAGIC_DEFINITIONS: MagicDefinition[] = [
     category: "archive",
     extension: ".7z",
     description: "7-Zip compressed archive",
-    match: (b) => b.length >= 6 && b[0] === 0x37 && b[1] === 0x7a && b[2] === 0xbc && b[3] === 0xaf && b[4] === 0x27 && b[5] === 0x1c,
+    match: (b) =>
+      b.length >= 6 &&
+      b[0] === 0x37 &&
+      b[1] === 0x7a &&
+      b[2] === 0xbc &&
+      b[3] === 0xaf &&
+      b[4] === 0x27 &&
+      b[5] === 0x1c,
   },
   {
     name: "RAR",
@@ -212,7 +242,14 @@ const MAGIC_DEFINITIONS: MagicDefinition[] = [
     category: "archive",
     extension: ".rar",
     description: "RAR compressed archive",
-    match: (b) => b.length >= 7 && b[0] === 0x52 && b[1] === 0x61 && b[2] === 0x72 && b[3] === 0x21 && b[4] === 0x1a && b[5] === 0x07,
+    match: (b) =>
+      b.length >= 7 &&
+      b[0] === 0x52 &&
+      b[1] === 0x61 &&
+      b[2] === 0x72 &&
+      b[3] === 0x21 &&
+      b[4] === 0x1a &&
+      b[5] === 0x07,
   },
   {
     name: "XZ",
@@ -220,7 +257,14 @@ const MAGIC_DEFINITIONS: MagicDefinition[] = [
     category: "archive",
     extension: ".xz",
     description: "XZ compressed archive",
-    match: (b) => b.length >= 6 && b[0] === 0xfd && b[1] === 0x37 && b[2] === 0x7a && b[3] === 0x58 && b[4] === 0x5a && b[5] === 0x00,
+    match: (b) =>
+      b.length >= 6 &&
+      b[0] === 0xfd &&
+      b[1] === 0x37 &&
+      b[2] === 0x7a &&
+      b[3] === 0x58 &&
+      b[4] === 0x5a &&
+      b[5] === 0x00,
   },
   // Audio
   {
@@ -245,7 +289,10 @@ const MAGIC_DEFINITIONS: MagicDefinition[] = [
     category: "audio",
     extension: ".wav",
     description: "Waveform Audio File Format",
-    match: (b) => b.length >= 12 && b.subarray(0, 4).toString("ascii") === "RIFF" && b.subarray(8, 12).toString("ascii") === "WAVE",
+    match: (b) =>
+      b.length >= 12 &&
+      b.subarray(0, 4).toString("ascii") === "RIFF" &&
+      b.subarray(8, 12).toString("ascii") === "WAVE",
   },
   {
     name: "FLAC",
@@ -286,7 +333,10 @@ const MAGIC_DEFINITIONS: MagicDefinition[] = [
     category: "video",
     extension: ".avi",
     description: "Audio Video Interleave (AVI)",
-    match: (b) => b.length >= 12 && b.subarray(0, 4).toString("ascii") === "RIFF" && b.subarray(8, 12).toString("ascii") === "AVI ",
+    match: (b) =>
+      b.length >= 12 &&
+      b.subarray(0, 4).toString("ascii") === "RIFF" &&
+      b.subarray(8, 12).toString("ascii") === "AVI ",
   },
   // Executables & Binaries (Identified for safety classification)
   {
@@ -347,9 +397,21 @@ const EXTENSION_MAP: Record<string, { mime: string; category: MimeCategory; isBi
   ".ico": { mime: "image/x-icon", category: "image", isBinary: true },
   // Documents
   ".pdf": { mime: "application/pdf", category: "document", isBinary: true },
-  ".docx": { mime: "application/vnd.openxmlformats-officedocument.wordprocessingml.document", category: "document", isBinary: true },
-  ".xlsx": { mime: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", category: "data", isBinary: true },
-  ".pptx": { mime: "application/vnd.openxmlformats-officedocument.presentationml.presentation", category: "document", isBinary: true },
+  ".docx": {
+    mime: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    category: "document",
+    isBinary: true,
+  },
+  ".xlsx": {
+    mime: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    category: "data",
+    isBinary: true,
+  },
+  ".pptx": {
+    mime: "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+    category: "document",
+    isBinary: true,
+  },
   // Archives
   ".zip": { mime: "application/zip", category: "archive", isBinary: true },
   ".tar": { mime: "application/x-tar", category: "archive", isBinary: true },
@@ -385,15 +447,19 @@ function extractExtension(filename?: string): string | null {
  */
 function decodeSampleBuffer(sample: string, encoding: "auto" | "hex" | "base64"): Buffer {
   const clean = sample.trim();
-  if (encoding === "hex" || (encoding === "auto" && /^[0-9a-fA-F\s]+$/.test(clean) && clean.length % 2 === 0)) {
+  if (
+    encoding === "hex" ||
+    (encoding === "auto" && /^[0-9a-fA-F\s]+$/.test(clean) && clean.length % 2 === 0)
+  ) {
     return Buffer.from(clean.replace(/\s+/g, ""), "hex");
   }
   return Buffer.from(clean, "base64");
 }
 
-export class MimeAnalyzerCapability
-  implements Capability<typeof MimeAnalyzerInputSchema, MimeAnalyzerOutput>
-{
+export class MimeAnalyzerCapability implements Capability<
+  typeof MimeAnalyzerInputSchema,
+  MimeAnalyzerOutput
+> {
   public readonly metadata: CapabilityMetadata = {
     name: "mime_analyzer",
     version: "1.0.0",
@@ -412,9 +478,12 @@ export class MimeAnalyzerCapability
     operations: [
       {
         name: "analyze",
-        description: "Analyzes filename extension, declared MIME type, and binary magic byte samples to determine true media type",
-        inputDescription: "filename (optional), declaredMimeType (optional), byteSample (optional), sampleEncoding (optional)",
-        outputDescription: "Detailed MIME analysis, confidence level, magic signature match, and mismatch diagnostics",
+        description:
+          "Analyzes filename extension, declared MIME type, and binary magic byte samples to determine true media type",
+        inputDescription:
+          "filename (optional), declaredMimeType (optional), byteSample (optional), sampleEncoding (optional)",
+        outputDescription:
+          "Detailed MIME analysis, confidence level, magic signature match, and mismatch diagnostics",
       },
     ],
     limits: {
@@ -427,7 +496,8 @@ export class MimeAnalyzerCapability
       offlineOnly: true,
       zeroRetention: true,
       noExternalCalls: true,
-      notes: "Never accesses the filesystem or opens files. Analyzes only caller-provided byte samples in-memory.",
+      notes:
+        "Never accesses the filesystem or opens files. Analyzes only caller-provided byte samples in-memory.",
     },
     usageGuidance: {
       useWhen: [
@@ -452,9 +522,7 @@ export class MimeAnalyzerCapability
 
   public readonly inputSchema = MimeAnalyzerInputSchema;
 
-  public async execute(
-    input: MimeAnalyzerInput
-  ): Promise<CapabilityResult<MimeAnalyzerOutput>> {
+  public async execute(input: MimeAnalyzerInput): Promise<CapabilityResult<MimeAnalyzerOutput>> {
     const { filename, declaredMimeType, byteSample, sampleEncoding = "auto" } = input;
 
     const extension = extractExtension(filename);
@@ -498,7 +566,10 @@ export class MimeAnalyzerCapability
     } else if (extInfo) {
       detectedMimeType = extInfo.mime;
       category = extInfo.category;
-      confidence = declaredMimeType && declaredMimeType.toLowerCase() === extInfo.mime.toLowerCase() ? "medium" : "low";
+      confidence =
+        declaredMimeType && declaredMimeType.toLowerCase() === extInfo.mime.toLowerCase()
+          ? "medium"
+          : "low";
       suggestedExtension = extension!;
       isBinary = extInfo.isBinary;
     } else if (declaredMimeType) {
@@ -508,11 +579,23 @@ export class MimeAnalyzerCapability
         const primary = detectedMimeType.slice(0, slashIdx);
         if (["image", "audio", "video", "text"].includes(primary)) {
           category = primary as MimeCategory;
-        } else if (detectedMimeType.includes("json") || detectedMimeType.includes("xml") || detectedMimeType.includes("csv")) {
+        } else if (
+          detectedMimeType.includes("json") ||
+          detectedMimeType.includes("xml") ||
+          detectedMimeType.includes("csv")
+        ) {
           category = "data";
-        } else if (detectedMimeType.includes("zip") || detectedMimeType.includes("tar") || detectedMimeType.includes("gzip")) {
+        } else if (
+          detectedMimeType.includes("zip") ||
+          detectedMimeType.includes("tar") ||
+          detectedMimeType.includes("gzip")
+        ) {
           category = "archive";
-        } else if (detectedMimeType.includes("pdf") || detectedMimeType.includes("word") || detectedMimeType.includes("document")) {
+        } else if (
+          detectedMimeType.includes("pdf") ||
+          detectedMimeType.includes("word") ||
+          detectedMimeType.includes("document")
+        ) {
           category = "document";
         }
       }
@@ -528,15 +611,28 @@ export class MimeAnalyzerCapability
       if (extInfo && extInfo.mime !== magicMatch.mime) {
         mismatchDetected = true;
         mismatchDetails = `File extension '${extension}' implies '${extInfo.mime}', but magic byte header indicates '${magicMatch.mime}' (${magicMatch.name}).`;
-      } else if (declaredMimeType && declaredMimeType.toLowerCase() !== magicMatch.mime.toLowerCase()) {
+      } else if (
+        declaredMimeType &&
+        declaredMimeType.toLowerCase() !== magicMatch.mime.toLowerCase()
+      ) {
         mismatchDetected = true;
         mismatchDetails = `Declared MIME '${declaredMimeType}' does not match detected magic signature '${magicMatch.mime}' (${magicMatch.name}).`;
       }
 
-      if (magicMatch.isExecutable && extension && [".jpg", ".png", ".pdf", ".gif", ".txt"].includes(extension)) {
-        potentialRisks.push(`High risk: Executable binary magic header (${magicMatch.name}) detected inside a file named with extension '${extension}'.`);
+      if (
+        magicMatch.isExecutable &&
+        extension &&
+        [".jpg", ".png", ".pdf", ".gif", ".txt"].includes(extension)
+      ) {
+        potentialRisks.push(
+          `High risk: Executable binary magic header (${magicMatch.name}) detected inside a file named with extension '${extension}'.`
+        );
       }
-    } else if (extInfo && declaredMimeType && declaredMimeType.toLowerCase() !== extInfo.mime.toLowerCase()) {
+    } else if (
+      extInfo &&
+      declaredMimeType &&
+      declaredMimeType.toLowerCase() !== extInfo.mime.toLowerCase()
+    ) {
       mismatchDetected = true;
       mismatchDetails = `Extension '${extension}' (${extInfo.mime}) conflicts with declared MIME '${declaredMimeType}'.`;
     }
@@ -544,7 +640,10 @@ export class MimeAnalyzerCapability
     const magicSignature: MagicSignatureResult = {
       matched: magicMatch !== null,
       signatureName: magicMatch?.name,
-      hexPattern: sampleBuf && sampleBuf.length > 0 ? sampleBuf.subarray(0, Math.min(16, sampleBuf.length)).toString("hex").toUpperCase() : undefined,
+      hexPattern:
+        sampleBuf && sampleBuf.length > 0
+          ? sampleBuf.subarray(0, Math.min(16, sampleBuf.length)).toString("hex").toUpperCase()
+          : undefined,
       description: magicMatch?.description,
     };
 

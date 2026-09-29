@@ -7,6 +7,7 @@ This guide explains how to build, test, and register a new capability in **Every
 ## 1. Capability Principles
 
 Before creating a capability, ensure it meets the Everything.Free standards:
+
 1. **100% Free**: Operates with ₹0/$0 cost.
 2. **Deterministic & Local**: Pure in-memory computation whenever possible.
 3. **Privacy-Safe**: Zero persistent logging or data harvesting.
@@ -18,6 +19,7 @@ Before creating a capability, ensure it meets the Everything.Free standards:
 ## 2. Step-by-Step Implementation
 
 ### Step 1: Create the Capability File
+
 Create a new file in `src/capabilities/<category>/<capability-name>.ts`.
 
 ```typescript
@@ -36,9 +38,7 @@ export interface ExampleOutput {
 }
 
 // 2. Implement Capability interface
-export class ExampleCapability
-  implements Capability<typeof ExampleInputSchema, ExampleOutput>
-{
+export class ExampleCapability implements Capability<typeof ExampleInputSchema, ExampleOutput> {
   public readonly metadata: CapabilityMetadata = {
     name: "example_transformer",
     version: "1.0.0",
@@ -58,9 +58,7 @@ export class ExampleCapability
 
   public readonly inputSchema = ExampleInputSchema;
 
-  public async execute(
-    input: ExampleInput
-  ): Promise<CapabilityResult<ExampleOutput>> {
+  public async execute(input: ExampleInput): Promise<CapabilityResult<ExampleOutput>> {
     return {
       success: true,
       data: {
@@ -74,6 +72,7 @@ export class ExampleCapability
 ---
 
 ### Step 2: Register in `src/capabilities/index.ts`
+
 Register the new capability in `createDefaultRegistry`:
 
 ```typescript
@@ -81,7 +80,7 @@ import { ExampleCapability } from "./text/example.js";
 
 export function createDefaultRegistry(): CapabilityRegistry {
   const registry = new CapabilityRegistry();
-  
+
   registry.register(new JsonFormatterValidatorCapability());
   registry.register(new ExampleCapability()); // Added here
 
@@ -92,6 +91,7 @@ export function createDefaultRegistry(): CapabilityRegistry {
 ---
 
 ### Step 3: Add Unit & Integration Tests
+
 Create `tests/unit/example.test.ts` to test schema validation, edge cases, and execution:
 
 ```typescript
@@ -112,7 +112,9 @@ describe("ExampleCapability", () => {
 ---
 
 ### Step 4: Automatic MCP Resources & Tools Generation
+
 When registered in `createDefaultRegistry()`, the new capability automatically:
+
 - Exposes an MCP Tool (`tools/list` and `tools/call`).
 - Registers a static documentation resource at `everything-free://capabilities/<name>`.
 - Is indexed into the machine-readable capability catalog at `everything-free://capabilities`.
@@ -121,7 +123,9 @@ When registered in `createDefaultRegistry()`, the new capability automatically:
 ---
 
 ### Step 5: Validate Suite & Run Benchmarks
+
 Run the full verification and benchmark suites:
+
 ```bash
 npm run typecheck
 npm test

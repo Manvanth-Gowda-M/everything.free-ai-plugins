@@ -6,17 +6,18 @@ Everything.Free AI Plugins is packaged as an npm-compatible ESM distribution.
 
 ## 1. Package Configuration
 
-* **Package Name**: `everything.free-ai-plugins`
-* **Target Version**: `0.1.0`
-* **Module System**: Pure ESM (`"type": "module"`)
-* **Binary Executable**: `everything-free` (`./dist/server.js`)
-* **TypeScript Types**: Included (`./dist/index.d.ts`)
+- **Package Name**: `everything.free-ai-plugins`
+- **Target Version**: `0.1.0`
+- **Module System**: Pure ESM (`"type": "module"`)
+- **Binary Executable**: `everything-free` (`./dist/server.js`)
+- **TypeScript Types**: Included (`./dist/index.d.ts`)
 
 ---
 
 ## 2. Package Contents Inspection
 
 The package is strictly configured with a whitelist in `package.json`:
+
 ```json
 "files": [
   "dist",
@@ -26,7 +27,9 @@ The package is strictly configured with a whitelist in `package.json`:
 ```
 
 ### Excluded Artifacts
+
 The published tarball strictly excludes:
+
 - `tests/` and test fixtures
 - `.git/` and CI workflow definitions
 - `docs/` internal markdown notes
@@ -35,7 +38,9 @@ The published tarball strictly excludes:
 - Secrets, tokens, and configuration artifacts
 
 ### Verification Command
+
 Run pre-pack dry run to inspect the package bundle:
+
 ```bash
 npm pack --dry-run
 ```
@@ -61,6 +66,7 @@ npx everything.free-ai-plugins --help
 ---
 
 ## 4. Security Verification
+
 - Zero telemetry dependencies.
 - Zero arbitrary network or filesystem execution.
 - No analytics or credential collectors.

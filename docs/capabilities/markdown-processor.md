@@ -1,28 +1,29 @@
 # Markdown Processor (`markdown_processor`)
 
 ## 1. Overview
+
 The `markdown_processor` capability provides structural Markdown parsing, heading hierarchy extraction, link and image extraction, fenced code block extraction, automated Table of Contents (TOC) generation, and conservative Markdown normalization.
 
-* **Pack**: `Text Pack`
-* **Category**: `text`
-* **Version**: `1.0.0`
-* **Cost**: 100% Free (₹0 / $0)
-* **Execution**: 100% Local (in-memory)
-* **Privacy**: `local-only` (Zero retention, no content logging)
-* **External Dependencies**: None
+- **Pack**: `Text Pack`
+- **Category**: `text`
+- **Version**: `1.0.0`
+- **Cost**: 100% Free (₹0 / $0)
+- **Execution**: 100% Local (in-memory)
+- **Privacy**: `local-only` (Zero retention, no content logging)
+- **External Dependencies**: None
 
 ---
 
 ## 2. Supported Operations
 
-| Operation | Description | Output |
-| :--- | :--- | :--- |
-| `inspect` | Reports document structure metrics (headings, links, code blocks, lists, words, lines) | `{ stats: { headingCount, linkCount, codeBlockCount, paragraphCount, listCount, wordCount, lineCount } }` |
-| `headings` | Extracts heading hierarchy with levels (H1-H6), text, line numbers, and anchor slugs | `{ headings: [{ level, text, id, line }] }` |
-| `links` | Extracts all markdown hyperlinks and images | `{ links: [{ text, url, isImage, line }] }` |
-| `code_blocks` | Extracts fenced code blocks with language identifiers and line count | `{ codeBlocks: [{ language, code, lineCount, line }] }` |
-| `toc` | Generates a clickable markdown Table of Contents from headings | `{ toc: string }` |
-| `normalize` | Normalizes heading spacing, list bullet formatting, and trailing spaces | `{ normalizedMarkdown: string }` |
+| Operation     | Description                                                                            | Output                                                                                                    |
+| :------------ | :------------------------------------------------------------------------------------- | :-------------------------------------------------------------------------------------------------------- |
+| `inspect`     | Reports document structure metrics (headings, links, code blocks, lists, words, lines) | `{ stats: { headingCount, linkCount, codeBlockCount, paragraphCount, listCount, wordCount, lineCount } }` |
+| `headings`    | Extracts heading hierarchy with levels (H1-H6), text, line numbers, and anchor slugs   | `{ headings: [{ level, text, id, line }] }`                                                               |
+| `links`       | Extracts all markdown hyperlinks and images                                            | `{ links: [{ text, url, isImage, line }] }`                                                               |
+| `code_blocks` | Extracts fenced code blocks with language identifiers and line count                   | `{ codeBlocks: [{ language, code, lineCount, line }] }`                                                   |
+| `toc`         | Generates a clickable markdown Table of Contents from headings                         | `{ toc: string }`                                                                                         |
+| `normalize`   | Normalizes heading spacing, list bullet formatting, and trailing spaces                | `{ normalizedMarkdown: string }`                                                                          |
 
 ---
 

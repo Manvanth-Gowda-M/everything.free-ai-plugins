@@ -9,11 +9,7 @@ export type CapabilityCategory = "data" | "text" | "encoding" | "developer" | "u
  * Standard Capability Pack classification.
  */
 export type CapabilityPackName =
-  | "Data Pack"
-  | "Text Pack"
-  | "Encoding Pack"
-  | "Utility Pack"
-  | "Developer Pack";
+  "Data Pack" | "Text Pack" | "Encoding Pack" | "Utility Pack" | "Developer Pack";
 
 /**
  * Standard Capability Pack descriptor.
@@ -127,10 +123,7 @@ export interface CapabilityResult<TOutput = unknown> {
 /**
  * Standard interface that all Everything.Free capabilities must implement (Capability Contract v2).
  */
-export interface Capability<
-  TInputSchema extends z.ZodTypeAny = z.ZodTypeAny,
-  TOutput = unknown,
-> {
+export interface Capability<TInputSchema extends z.ZodTypeAny = z.ZodTypeAny, TOutput = unknown> {
   readonly metadata: CapabilityMetadata;
   readonly inputSchema: TInputSchema;
   execute(input: z.infer<TInputSchema>): Promise<CapabilityResult<TOutput>>;

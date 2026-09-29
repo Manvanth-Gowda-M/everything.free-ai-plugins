@@ -75,9 +75,10 @@ function slugify(text: string): string {
     .replace(/\s+/g, "-");
 }
 
-export class MarkdownProcessorCapability
-  implements Capability<typeof MarkdownProcessorInputSchema, MarkdownProcessorOutput>
-{
+export class MarkdownProcessorCapability implements Capability<
+  typeof MarkdownProcessorInputSchema,
+  MarkdownProcessorOutput
+> {
   public readonly metadata: CapabilityMetadata = {
     name: "markdown_processor",
     version: "1.0.0",
@@ -96,13 +97,16 @@ export class MarkdownProcessorCapability
     operations: [
       {
         name: "inspect",
-        description: "Reports document metrics (headings, links, code blocks, paragraphs, lists, words, lines)",
+        description:
+          "Reports document metrics (headings, links, code blocks, paragraphs, lists, words, lines)",
         inputDescription: "markdownText",
-        outputDescription: "{ stats: { headingCount, linkCount, codeBlockCount, paragraphCount, listCount, wordCount, lineCount } }",
+        outputDescription:
+          "{ stats: { headingCount, linkCount, codeBlockCount, paragraphCount, listCount, wordCount, lineCount } }",
       },
       {
         name: "headings",
-        description: "Extracts full heading hierarchy (H1-H6) with levels, line numbers, and anchor slugs",
+        description:
+          "Extracts full heading hierarchy (H1-H6) with levels, line numbers, and anchor slugs",
         inputDescription: "markdownText",
         outputDescription: "{ headings: [{ level, text, id, line }] }",
       },

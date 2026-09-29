@@ -1,5 +1,8 @@
 import { describe, it, expect } from "vitest";
-import { XmlProcessorCapability, XmlProcessorOutput } from "../../src/capabilities/data/xml-processor.js";
+import {
+  XmlProcessorCapability,
+  XmlProcessorOutput,
+} from "../../src/capabilities/data/xml-processor.js";
 import { ExecutionRunner } from "../../src/core/execution.js";
 
 describe("XmlProcessorCapability", () => {
@@ -57,7 +60,7 @@ describe("XmlProcessorCapability", () => {
 
       expect(res.success).toBe(true);
       expect(res.data?.result).toBeDefined();
-      expect(res.data?.result).toContain("<root>\n  <item id=\"1\">");
+      expect(res.data?.result).toContain('<root>\n  <item id="1">');
       expect(res.data?.result).toContain("</item>\n</root>");
     });
   });
@@ -72,8 +75,10 @@ describe("XmlProcessorCapability", () => {
       expect(res.success).toBe(true);
       expect(res.data?.result).toBeDefined();
       expect(res.data?.result).not.toContain("  ");
-      expect(res.data?.result).toContain("<book category=\"fiction\" id=\"b101\">");
-      expect(res.data?.result).toContain("<![CDATA[Between life and death there is a library...]]>");
+      expect(res.data?.result).toContain('<book category="fiction" id="b101">');
+      expect(res.data?.result).toContain(
+        "<![CDATA[Between life and death there is a library...]]>"
+      );
     });
   });
 
@@ -109,7 +114,7 @@ describe("XmlProcessorCapability", () => {
   describe("parse operation", () => {
     it("should parse XML into structured AST", async () => {
       const res = await ExecutionRunner.run<XmlProcessorOutput>(capability, {
-        xmlString: "<app version=\"2.0\"><title>Everything.Free</title></app>",
+        xmlString: '<app version="2.0"><title>Everything.Free</title></app>',
         operation: "parse",
       });
 
@@ -135,7 +140,9 @@ describe("XmlProcessorCapability", () => {
 
       expect(res.success).toBe(true);
       expect(res.data?.valid).toBe(false);
-      expect(res.data?.error?.message).toContain("External entity declarations (SYSTEM / PUBLIC) are rejected for security");
+      expect(res.data?.error?.message).toContain(
+        "External entity declarations (SYSTEM / PUBLIC) are rejected for security"
+      );
     });
 
     it("should reject external DTD with HTTP URL", async () => {
@@ -147,7 +154,9 @@ describe("XmlProcessorCapability", () => {
 
       expect(res.success).toBe(true);
       expect(res.data?.valid).toBe(false);
-      expect(res.data?.error?.message).toContain("External entity declarations (SYSTEM / PUBLIC) are rejected for security");
+      expect(res.data?.error?.message).toContain(
+        "External entity declarations (SYSTEM / PUBLIC) are rejected for security"
+      );
     });
   });
 

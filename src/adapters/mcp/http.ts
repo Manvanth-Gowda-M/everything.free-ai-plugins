@@ -170,6 +170,22 @@ export function startHttpServer(
       return;
     }
 
+    // 8b. Readiness Probe Endpoint (Readiness for load balancers & reverse proxies)
+    if (url.pathname === "/ready" && req.method === "GET") {
+      const isReady = registry.count() > 0 && !isShuttingDown;
+      const statusCode = isReady ? 200 : 503;
+      res.writeHead(statusCode, { "Content-Type": "application/json" });
+      res.end(
+        JSON.stringify({
+          status: isReady ? "ready" : "not_ready",
+          service: SERVICE_NAME,
+          capabilitiesCount: registry.count(),
+          ready: isReady,
+        })
+      );
+      return;
+    }
+
     // 9. Streamable HTTP MCP Endpoint
     if (url.pathname === "/mcp" || url.pathname === "/") {
       try {
@@ -217,7 +233,9 @@ export function startHttpServer(
 
     const timer = setTimeout(() => {
       if (config.logLevel !== "none") {
-        process.stderr.write("[Everything.Free] Graceful shutdown timeout reached. Forcing exit.\n");
+        process.stderr.write(
+          "[Everything.Free] Graceful shutdown timeout reached. Forcing exit.\n"
+        );
       }
       process.exit(0);
     }, config.shutdownTimeoutMs);

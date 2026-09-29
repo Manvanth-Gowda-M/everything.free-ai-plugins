@@ -93,9 +93,10 @@ function computeDiff(tokensA: string[], tokensB: string[], delimiter: string): D
   return compacted;
 }
 
-export class TextDiffAnalyzerCapability
-  implements Capability<typeof TextDiffInputSchema, TextDiffOutput>
-{
+export class TextDiffAnalyzerCapability implements Capability<
+  typeof TextDiffInputSchema,
+  TextDiffOutput
+> {
   public readonly metadata: CapabilityMetadata = {
     name: "text_diff_analyzer",
     version: "1.0.0",
@@ -114,7 +115,8 @@ export class TextDiffAnalyzerCapability
     operations: [
       {
         name: "diff",
-        description: "Computes structured diff (line or word granularity) between original and modified text",
+        description:
+          "Computes structured diff (line or word granularity) between original and modified text",
         inputDescription: "original, modified, mode ('line' | 'word')",
         outputDescription: "{ identical: boolean, addedCount, removedCount, diff: string }",
       },
@@ -163,7 +165,8 @@ export class TextDiffAnalyzerCapability
           mode,
           addedCount: 0,
           removedCount: 0,
-          unchangedCount: mode === "line" ? original.split("\n").length : original.split(/\s+/).length,
+          unchangedCount:
+            mode === "line" ? original.split("\n").length : original.split(/\s+/).length,
           summary: "Texts are identical (0 additions, 0 removals)",
           diff: original
             .split("\n")

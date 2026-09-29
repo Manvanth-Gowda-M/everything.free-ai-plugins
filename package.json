@@ -32,16 +32,21 @@
   },
   "scripts": {
     "build": "tsc",
+    "build:web": "vite build web --outDir ../dist-web --emptyOutDir",
+    "build:all": "npm run build && npm run build:web",
     "dev": "tsx watch src/server.ts",
     "dev:stdio": "tsx src/server.ts --stdio",
+    "dev:web": "vite web",
+    "preview:web": "vite preview web --outDir ../dist-web",
     "start": "node dist/server.js",
     "start:stdio": "node dist/server.js --stdio",
     "benchmark": "tsx src/benchmark.ts",
     "test": "vitest run",
     "test:watch": "vitest",
     "typecheck": "tsc --noEmit",
+    "typecheck:web": "tsc --project web/tsconfig.json --noEmit",
     "lint": "eslint \"src/**/*.ts\" \"tests/**/*.ts\"",
-    "format": "prettier --write \"src/**/*.ts\" \"tests/**/*.ts\" \"docs/**/*.md\""
+    "format": "prettier --write \"src/**/*.ts\" \"tests/**/*.ts\" \"docs/**/*.md\" \"web/src/**/*.ts\""
   },
   "keywords": [
     "mcp",
@@ -68,6 +73,7 @@
     "prettier": "^3.5.3",
     "tsx": "^4.19.3",
     "typescript": "^5.8.2",
+    "vite": "^6.2.0",
     "vitest": "^3.0.7"
   },
   "engines": {

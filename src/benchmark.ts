@@ -31,7 +31,11 @@ export const BENCHMARK_CASES: BenchmarkCase[] = [
       jsonString: JSON.stringify({
         project: "Everything.Free",
         version: "0.1.0",
-        items: Array.from({ length: 100 }, (_, i) => ({ id: i, name: `item_${i}`, active: i % 2 === 0 })),
+        items: Array.from({ length: 100 }, (_, i) => ({
+          id: i,
+          name: `item_${i}`,
+          active: i % 2 === 0,
+        })),
       }),
       action: "format",
     },
@@ -42,7 +46,12 @@ export const BENCHMARK_CASES: BenchmarkCase[] = [
     capabilityName: "csv_processor",
     operationDescription: "Parse, Filter & JSON Convert 500-row CSV",
     input: {
-      csvText: "id,name,age,role\n" + Array.from({ length: 500 }, (_, i) => `${i},User_${i},${20 + (i % 40)},${i % 5 === 0 ? "admin" : "member"}`).join("\n"),
+      csvText:
+        "id,name,age,role\n" +
+        Array.from(
+          { length: 500 },
+          (_, i) => `${i},User_${i},${20 + (i % 40)},${i % 5 === 0 ? "admin" : "member"}`
+        ).join("\n"),
       operation: "filter",
       filterColumn: "age",
       filterOperator: "greater_than",
@@ -76,7 +85,10 @@ export const BENCHMARK_CASES: BenchmarkCase[] = [
     operationDescription: "Line Diff 100-line Configuration Files",
     input: {
       original: Array.from({ length: 100 }, (_, i) => `CONFIG_KEY_${i}=value_${i}`).join("\n"),
-      modified: Array.from({ length: 100 }, (_, i) => `CONFIG_KEY_${i}=value_${i % 3 === 0 ? "MODIFIED" : i}`).join("\n"),
+      modified: Array.from(
+        { length: 100 },
+        (_, i) => `CONFIG_KEY_${i}=value_${i % 3 === 0 ? "MODIFIED" : i}`
+      ).join("\n"),
       mode: "line",
     },
     iterations: 50,
@@ -86,7 +98,11 @@ export const BENCHMARK_CASES: BenchmarkCase[] = [
     capabilityName: "markdown_processor",
     operationDescription: "Extract Outline & TOC from 200-line Markdown",
     input: {
-      markdownText: Array.from({ length: 20 }, (_, i) => `# Section ${i}\n\nContent paragraph for section ${i}.\n\n## Subsection ${i}.1\nDetails\n\n\`\`\`ts\nconst x = ${i};\n\`\`\``).join("\n\n"),
+      markdownText: Array.from(
+        { length: 20 },
+        (_, i) =>
+          `# Section ${i}\n\nContent paragraph for section ${i}.\n\n## Subsection ${i}.1\nDetails\n\n\`\`\`ts\nconst x = ${i};\n\`\`\``
+      ).join("\n\n"),
       operation: "toc",
     },
     iterations: 100,
@@ -160,7 +176,8 @@ export const BENCHMARK_CASES: BenchmarkCase[] = [
     capabilityName: "jwt_inspector",
     operationDescription: "Decode & Inspect Header/Claims of Signed JWT",
     input: {
-      token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkFsaWNlIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMn0.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c",
+      token:
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkFsaWNlIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMn0.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c",
     },
     iterations: 200,
   },
@@ -251,13 +268,21 @@ export async function runAllBenchmarks(): Promise<BenchmarkResult[]> {
  * Prints formatted benchmark results table.
  */
 export function printBenchmarkReport(results: BenchmarkResult[]): void {
-  process.stdout.write("\n========================================================================================================\n");
-  process.stdout.write("             EVERYTHING.FREE AI PLUGINS — LOCAL CAPABILITY BENCHMARK REPORT\n");
-  process.stdout.write("========================================================================================================\n");
+  process.stdout.write(
+    "\n========================================================================================================\n"
+  );
+  process.stdout.write(
+    "             EVERYTHING.FREE AI PLUGINS — LOCAL CAPABILITY BENCHMARK REPORT\n"
+  );
+  process.stdout.write(
+    "========================================================================================================\n"
+  );
   process.stdout.write(
     `| ${"Capability".padEnd(26)} | ${"Pack".padEnd(16)} | ${"Input".padStart(7)} | ${"Avg (ms)".padStart(8)} | ${"Min (ms)".padStart(8)} | ${"Max (ms)".padStart(8)} | ${"Ops/sec".padStart(10)} |\n`
   );
-  process.stdout.write("--------------------------------------------------------------------------------------------------------\n");
+  process.stdout.write(
+    "--------------------------------------------------------------------------------------------------------\n"
+  );
 
   for (const r of results) {
     const cap = r.capability.padEnd(26);
@@ -268,9 +293,13 @@ export function printBenchmarkReport(results: BenchmarkResult[]): void {
     const max = r.maxDurationMs.toFixed(3).padStart(8);
     const ops = Math.round(r.opsPerSec).toLocaleString().padStart(10);
 
-    process.stdout.write(`| ${cap} | ${pack} | ${inputSize} | ${avg} | ${min} | ${max} | ${ops} |\n`);
+    process.stdout.write(
+      `| ${cap} | ${pack} | ${inputSize} | ${avg} | ${min} | ${max} | ${ops} |\n`
+    );
   }
-  process.stdout.write("========================================================================================================\n\n");
+  process.stdout.write(
+    "========================================================================================================\n\n"
+  );
 }
 
 // Direct execution runner

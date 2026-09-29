@@ -32,9 +32,9 @@ describe("JwtInspectorCapability", () => {
 
   it("should detect expired JWT token", async () => {
     // exp in past: 1000000000 (year 2001)
-    const expiredPayload = Buffer.from(
-      JSON.stringify({ sub: "user1", exp: 1000000000 })
-    ).toString("base64url");
+    const expiredPayload = Buffer.from(JSON.stringify({ sub: "user1", exp: 1000000000 })).toString(
+      "base64url"
+    );
     const expiredJwt = `eyJhbGciOiJIUzI1NiJ9.${expiredPayload}.signature123`;
 
     const res = await capability.execute({

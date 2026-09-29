@@ -6,7 +6,9 @@ export const JwtInspectorInputSchema = z.object({
     .string()
     .min(1, "JWT token string cannot be empty")
     .max(10_000, "JWT token exceeds maximum size limit of 10KB")
-    .describe("The raw JSON Web Token (JWT) string to inspect (format: 'header.payload.signature')"),
+    .describe(
+      "The raw JSON Web Token (JWT) string to inspect (format: 'header.payload.signature')"
+    ),
 });
 
 export type JwtInspectorInput = z.infer<typeof JwtInspectorInputSchema>;
@@ -45,9 +47,10 @@ function decodeBase64Url(str: string): string {
   return Buffer.from(base64, "base64").toString("utf8");
 }
 
-export class JwtInspectorCapability
-  implements Capability<typeof JwtInspectorInputSchema, JwtInspectionOutput>
-{
+export class JwtInspectorCapability implements Capability<
+  typeof JwtInspectorInputSchema,
+  JwtInspectionOutput
+> {
   public readonly metadata: CapabilityMetadata = {
     name: "jwt_inspector",
     version: "1.0.0",
@@ -66,9 +69,11 @@ export class JwtInspectorCapability
     operations: [
       {
         name: "inspect",
-        description: "Decodes JWT header, payload claims, timestamps, and calculates expiration status",
+        description:
+          "Decodes JWT header, payload claims, timestamps, and calculates expiration status",
         inputDescription: "token: string (format: 'header.payload.signature')",
-        outputDescription: "{ validStructure, header, payload, subject, issuer, audience, timestamps, signaturePreview, verificationNotice }",
+        outputDescription:
+          "{ validStructure, header, payload, subject, issuer, audience, timestamps, signaturePreview, verificationNotice }",
       },
     ],
     limits: {
@@ -80,7 +85,8 @@ export class JwtInspectorCapability
       offlineOnly: true,
       zeroRetention: true,
       noExternalCalls: true,
-      notes: "Strict structural decoding without signature verification; zero token logging or persistence",
+      notes:
+        "Strict structural decoding without signature verification; zero token logging or persistence",
     },
     usageGuidance: {
       useWhen: [
@@ -104,9 +110,7 @@ export class JwtInspectorCapability
 
   public readonly inputSchema = JwtInspectorInputSchema;
 
-  public async execute(
-    input: JwtInspectorInput
-  ): Promise<CapabilityResult<JwtInspectionOutput>> {
+  public async execute(input: JwtInspectorInput): Promise<CapabilityResult<JwtInspectionOutput>> {
     const { token } = input;
     const cleanToken = token.trim();
 
@@ -199,7 +203,10 @@ export class JwtInspectorCapability
         tokenType: typeof header.typ === "string" ? header.typ : undefined,
         issuer: typeof payload.iss === "string" ? payload.iss : undefined,
         subject: typeof payload.sub === "string" ? payload.sub : undefined,
-        audience: typeof payload.aud === "string" || Array.isArray(payload.aud) ? (payload.aud as string | string[]) : undefined,
+        audience:
+          typeof payload.aud === "string" || Array.isArray(payload.aud)
+            ? (payload.aud as string | string[])
+            : undefined,
         jwtId: typeof payload.jti === "string" ? payload.jti : undefined,
         timestamps,
         signaturePreview,

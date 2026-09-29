@@ -6,7 +6,9 @@ export const RegexTesterInputSchema = z.object({
     .string()
     .min(1, "Regex pattern cannot be empty")
     .max(500, "Regex pattern exceeds maximum length limit of 500 characters")
-    .describe("The regular expression pattern string (without enclosing slashes, e.g. '\\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Z|a-z]{2,}\\b')"),
+    .describe(
+      "The regular expression pattern string (without enclosing slashes, e.g. '\\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Z|a-z]{2,}\\b')"
+    ),
   text: z
     .string()
     .max(50_000, "Input text exceeds maximum size limit of 50KB")
@@ -16,7 +18,9 @@ export const RegexTesterInputSchema = z.object({
     .max(10)
     .optional()
     .default("g")
-    .describe("RegExp flags: 'g' (global), 'i' (ignore case), 'm' (multiline), 's' (dotAll), 'u' (unicode), 'v' (unicodeSets), 'y' (sticky). Default: 'g'"),
+    .describe(
+      "RegExp flags: 'g' (global), 'i' (ignore case), 'm' (multiline), 's' (dotAll), 'u' (unicode), 'v' (unicodeSets), 'y' (sticky). Default: 'g'"
+    ),
   operation: z
     .enum(["test", "match", "extract"])
     .default("test")
@@ -46,9 +50,10 @@ export interface RegexTesterOutput {
   details?: RegexMatchDetail[];
 }
 
-export class RegexTesterCapability
-  implements Capability<typeof RegexTesterInputSchema, RegexTesterOutput>
-{
+export class RegexTesterCapability implements Capability<
+  typeof RegexTesterInputSchema,
+  RegexTesterOutput
+> {
   public readonly metadata: CapabilityMetadata = {
     name: "regex_tester",
     version: "1.0.0",
@@ -75,7 +80,8 @@ export class RegexTesterCapability
         name: "match",
         description: "Extracts all matching substrings and named/positional capture groups",
         inputDescription: "pattern: string, text: string, flags?: string",
-        outputDescription: "{ matched: boolean, matches: string[], groups: Array<Record<string, string>>, matchCount: number }",
+        outputDescription:
+          "{ matched: boolean, matches: string[], groups: Array<Record<string, string>>, matchCount: number }",
       },
       {
         name: "replace",

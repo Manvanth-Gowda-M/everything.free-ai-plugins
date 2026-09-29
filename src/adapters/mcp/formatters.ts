@@ -25,9 +25,7 @@ export function formatMcpResult(result: CapabilityResult): {
 
   // Format data payload
   const formattedText =
-    typeof result.data === "string"
-      ? result.data
-      : JSON.stringify(result.data, null, 2);
+    typeof result.data === "string" ? result.data : JSON.stringify(result.data, null, 2);
 
   return {
     content: [{ type: "text", text: formattedText }],

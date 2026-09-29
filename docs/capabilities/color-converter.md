@@ -1,26 +1,27 @@
 # Color Converter (`color_converter`)
 
 ## 1. Overview
+
 The `color_converter` capability parses and transforms CSS colors across HEX, RGB, RGBA, HSL, HSLA, HSV, HWB, and OKLCH color spaces. It calculates WCAG 2.1 relative luminance and dark/light contrast metrics.
 
-* **Pack**: `Utility Pack`
-* **Category**: `utility`
-* **Version**: `1.0.0`
-* **Cost**: 100% Free (₹0 / $0)
-* **Execution**: 100% Local (in-memory)
-* **Privacy**: `local-only` (Zero retention)
-* **External Dependencies**: None
+- **Pack**: `Utility Pack`
+- **Category**: `utility`
+- **Version**: `1.0.0`
+- **Cost**: 100% Free (₹0 / $0)
+- **Execution**: 100% Local (in-memory)
+- **Privacy**: `local-only` (Zero retention)
+- **External Dependencies**: None
 
 ---
 
 ## 2. Supported Formats & Conversions
 
-* **HEX**: `#RGB`, `#RGBA`, `#RRGGBB`, `#RRGGBBAA`
-* **RGB / RGBA**: `rgb(r, g, b)`, `rgba(r, g, b, a)`
-* **HSL / HSLA**: `hsl(h, s%, l%)`, `hsla(h, s%, l%, a)`
-* **HSV**: `hsv(h, s%, v%)`
-* **HWB**: `hwb(h w% b%)`
-* **OKLCH**: `oklch(L% C H)`
+- **HEX**: `#RGB`, `#RGBA`, `#RRGGBB`, `#RRGGBBAA`
+- **RGB / RGBA**: `rgb(r, g, b)`, `rgba(r, g, b, a)`
+- **HSL / HSLA**: `hsl(h, s%, l%)`, `hsla(h, s%, l%, a)`
+- **HSV**: `hsv(h, s%, v%)`
+- **HWB**: `hwb(h w% b%)`
+- **OKLCH**: `oklch(L% C H)`
 
 ---
 

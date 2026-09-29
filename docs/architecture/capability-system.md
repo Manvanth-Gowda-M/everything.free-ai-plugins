@@ -5,6 +5,7 @@
 The **Capability System** is the standalone, platform-independent core of Everything.Free AI Plugins. It has zero coupling to HTTP frameworks, MCP SDK details, or AI vendor APIs.
 
 Each **Capability** represents a discrete, self-contained, 100% free computational unit:
+
 - **Identifier & Metadata**: Name, version, category, pack, description, AI usage guidance, and zero-cost guarantee (`isFree: true`).
 - **Input Schema**: Strongly-typed Zod schema providing validation, type-inference, and automatic JSON Schema conversion with property descriptions.
 - **Execution Logic**: Deterministic, pure in-memory local logic.
@@ -47,11 +48,11 @@ Everything.Free
 
 ### Pack Definitions
 
-* **Data Pack (`data`)**: Structured data transformation, validation, CSV processing, JSON inspection, SQL formatting/inspection, and XML to JSON conversion.
-* **Text Pack (`text`)**: Text diffing, structural Markdown inspection, heading hierarchy, TOC generation, and offline HTML extraction/cleaning.
-* **Encoding Pack (`encoding`)**: Cryptographic hashing (SHA-256/512), encodings (Base64, Hex, URL), UUID generation.
-* **Utility Pack (`utility`)**: Physical unit conversions, date/timezone calculations, CSS color space conversion (HEX, RGB, HSL, HSV, HWB, OKLCH), and deterministic cron expression analysis.
-* **Developer Pack (`developer`)**: Regex testing with ReDoS guards, in-memory JWT claim decoding, offline WHATWG URL decomposition, and binary MIME/magic-byte detection.
+- **Data Pack (`data`)**: Structured data transformation, validation, CSV processing, JSON inspection, SQL formatting/inspection, and XML to JSON conversion.
+- **Text Pack (`text`)**: Text diffing, structural Markdown inspection, heading hierarchy, TOC generation, and offline HTML extraction/cleaning.
+- **Encoding Pack (`encoding`)**: Cryptographic hashing (SHA-256/512), encodings (Base64, Hex, URL), UUID generation.
+- **Utility Pack (`utility`)**: Physical unit conversions, date/timezone calculations, CSS color space conversion (HEX, RGB, HSL, HSV, HWB, OKLCH), and deterministic cron expression analysis.
+- **Developer Pack (`developer`)**: Regex testing with ReDoS guards, in-memory JWT claim decoding, offline WHATWG URL decomposition, and binary MIME/magic-byte detection.
 
 ---
 
@@ -95,10 +96,7 @@ export interface CapabilityResult<TOutput = unknown> {
   };
 }
 
-export interface Capability<
-  TInputSchema extends z.ZodTypeAny = z.ZodTypeAny,
-  TOutput = unknown
-> {
+export interface Capability<TInputSchema extends z.ZodTypeAny = z.ZodTypeAny, TOutput = unknown> {
   readonly metadata: CapabilityMetadata;
   readonly inputSchema: TInputSchema;
   execute(input: z.infer<TInputSchema>): Promise<CapabilityResult<TOutput>>;
@@ -162,4 +160,3 @@ Everything.Free strictly partitions capabilities across three MCP primitives:
    - Provide structured interactive workflows guiding AI assistants on how to compose Everything.Free tools.
    - Accept typed Zod arguments (e.g. `json`, `csv`, `expression`).
    - Reinforce local-only offline processing guardrails and never instruct the server to fetch external credentials or network URLs.
-

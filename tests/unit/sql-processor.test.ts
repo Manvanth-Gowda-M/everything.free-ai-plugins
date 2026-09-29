@@ -1,5 +1,8 @@
 import { describe, it, expect } from "vitest";
-import { SqlProcessorCapability, SqlProcessorOutput } from "../../src/capabilities/data/sql-processor.js";
+import {
+  SqlProcessorCapability,
+  SqlProcessorOutput,
+} from "../../src/capabilities/data/sql-processor.js";
 import { ExecutionRunner } from "../../src/core/execution.js";
 
 describe("SqlProcessorCapability", () => {
@@ -7,7 +10,8 @@ describe("SqlProcessorCapability", () => {
 
   describe("format operation", () => {
     it("should format complex SELECT query with JOINs, WHERE, and GROUP BY", async () => {
-      const unformatted = "select u.id, u.name, count(o.id) as order_count from users u left join orders o on u.id = o.user_id where u.active = 1 and u.created_at >= '2025-01-01' group by u.id, u.name order by order_count desc limit 10;";
+      const unformatted =
+        "select u.id, u.name, count(o.id) as order_count from users u left join orders o on u.id = o.user_id where u.active = 1 and u.created_at >= '2025-01-01' group by u.id, u.name order by order_count desc limit 10;";
       const res = await ExecutionRunner.run<SqlProcessorOutput>(capability, {
         sql: unformatted,
         operation: "format",
@@ -29,7 +33,8 @@ describe("SqlProcessorCapability", () => {
     });
 
     it("should format INSERT and UPDATE statements", async () => {
-      const insertSql = "insert into users (name, email, role) values ('Alice', 'alice@example.com', 'admin');";
+      const insertSql =
+        "insert into users (name, email, role) values ('Alice', 'alice@example.com', 'admin');";
       const res = await ExecutionRunner.run<SqlProcessorOutput>(capability, {
         sql: insertSql,
         operation: "format",
@@ -41,7 +46,8 @@ describe("SqlProcessorCapability", () => {
     });
 
     it("should format nested subqueries with indentation", async () => {
-      const nested = "SELECT id, (SELECT MAX(amount) FROM payments WHERE user_id = u.id) AS max_pay FROM users u;";
+      const nested =
+        "SELECT id, (SELECT MAX(amount) FROM payments WHERE user_id = u.id) AS max_pay FROM users u;";
       const res = await ExecutionRunner.run<SqlProcessorOutput>(capability, {
         sql: nested,
         operation: "format",
@@ -52,7 +58,8 @@ describe("SqlProcessorCapability", () => {
     });
 
     it("should preserve comments in formatted output", async () => {
-      const commented = "-- Fetch active customers\nSELECT * FROM customers WHERE is_active = true;";
+      const commented =
+        "-- Fetch active customers\nSELECT * FROM customers WHERE is_active = true;";
       const res = await ExecutionRunner.run<SqlProcessorOutput>(capability, {
         sql: commented,
         operation: "format",
@@ -98,7 +105,8 @@ describe("SqlProcessorCapability", () => {
     });
 
     it("should accurately track maximum subquery nesting depth", async () => {
-      const deepSql = "SELECT * FROM t1 WHERE id IN (SELECT t1_id FROM t2 WHERE id IN (SELECT t2_id FROM t3));";
+      const deepSql =
+        "SELECT * FROM t1 WHERE id IN (SELECT t1_id FROM t2 WHERE id IN (SELECT t2_id FROM t3));";
       const res = await ExecutionRunner.run<SqlProcessorOutput>(capability, {
         sql: deepSql,
         operation: "inspect",
@@ -111,7 +119,8 @@ describe("SqlProcessorCapability", () => {
 
   describe("validate operation", () => {
     it("should pass valid SQL and report dialect notice", async () => {
-      const validSql = "SELECT id, name FROM employees WHERE department_id = 42 ORDER BY hire_date DESC;";
+      const validSql =
+        "SELECT id, name FROM employees WHERE department_id = 42 ORDER BY hire_date DESC;";
       const res = await ExecutionRunner.run<SqlProcessorOutput>(capability, {
         sql: validSql,
         operation: "validate",
@@ -174,7 +183,9 @@ describe("SqlProcessorCapability", () => {
       expect(res.data?.result).not.toContain("-- Fetch user profile");
       expect(res.data?.result).not.toContain("/* inline block comment */");
       expect(res.data?.result).toContain("'Hello World -- not a comment'");
-      expect(res.data?.result).toBe("SELECT id,name,'Hello World -- not a comment' AS greeting FROM users WHERE active=true AND age>=18;");
+      expect(res.data?.result).toBe(
+        "SELECT id,name,'Hello World -- not a comment' AS greeting FROM users WHERE active=true AND age>=18;"
+      );
     });
   });
 
