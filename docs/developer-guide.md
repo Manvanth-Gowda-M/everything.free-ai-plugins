@@ -111,10 +111,21 @@ describe("ExampleCapability", () => {
 
 ---
 
-### Step 4: Validate
-Run the validation commands:
+### Step 4: Automatic MCP Resources & Tools Generation
+When registered in `createDefaultRegistry()`, the new capability automatically:
+- Exposes an MCP Tool (`tools/list` and `tools/call`).
+- Registers a static documentation resource at `everything-free://capabilities/<name>`.
+- Is indexed into the machine-readable capability catalog at `everything-free://capabilities`.
+- Is benchmarkable via `npm run benchmark`.
+
+---
+
+### Step 5: Validate Suite & Run Benchmarks
+Run the full verification and benchmark suites:
 ```bash
 npm run typecheck
 npm test
 npm run lint
+npm run benchmark
+npm run build
 ```

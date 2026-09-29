@@ -1,24 +1,80 @@
-name: CI
+name: CI & Release Candidate Validation
 
 on:
   push:
-    branches: [main]
+    branches: [main, master]
   pull_request:
-    branches: [main]
+    branches: [main, master]
 
 jobs:
-  validate:
+  test-and-validate:
+    name: Test, Lint & Typecheck
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Setup Node.js
+
+      - name: Setup Node.js LTS (22.x)
         uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: "npm"
-      - name: Install dependencies
+
+      - name: Install dependencies (clean)
         run: npm ci
+
       - name: Typecheck
         run: npm run typecheck
-      - name: Run Tests
-        run: npm run test
+
+      - name: Run ESLint
+        run: npm run lint
+
+      - name: Run Automated Test Suite
+        run: npm test
+
+      - name: Run Performance Benchmark Suite
+        run: npm run benchmark
+
+      - name: Compile Production Build
+        run: npm run build
+
+  release-candidate-verification:
+    name: Package & Docker Verification
+    needs: test-and-validate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js LTS (22.x)
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: "npm"
+
+      - name: Install dependencies & Build
+        run: |
+          npm ci
+          npm run build
+
+      - name: Verify npm Package Dry-Run
+        run: npm pack --dry-run
+
+      - name: Package Clean Install Smoke Test
+        run: |
+          npm pack
+          mkdir -p /tmp/test-pkg
+          cd /tmp/test-pkg
+          npm init -y
+          npm install $GITHUB_WORKSPACE/everything.free-ai-plugins-*.tgz
+          npx everything-free --version
+          npx everything-free --help
+
+      - name: Build Docker Container
+        run: docker build -t everything-free-ai-plugins:rc .
+
+      - name: Run Container & Test Health Endpoint
+        run: |
+          docker run -d --name everything-free-test -p 3000:3000 everything-free-ai-plugins:rc
+          sleep 3
+          curl -f http://127.0.0.1:3000/health
+          docker stop everything-free-test
+          docker rm everything-free-test

@@ -1,0 +1,16 @@
+node_modules
+dist
+tests
+docs
+scratch
+.git
+.github
+.gemini
+.vscode
+.idea
+*.log
+*.tgz
+.env*
+coverage
+.DS_Store
+Thumbs.db

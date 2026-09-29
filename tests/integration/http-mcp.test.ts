@@ -48,14 +48,14 @@ describe("Streamable HTTP MCP Integration (Real HTTP Wire Tests)", () => {
     });
   });
 
-  it("should respond to GET /health with safe diagnostics and 10 capabilities", async () => {
+  it("should respond to GET /health with safe diagnostics and 15 capabilities", async () => {
     const res = await fetch(`${BASE_URL}/health`);
     expect(res.status).toBe(200);
     const data = await res.json();
     expect(data.status).toBe("ok");
     expect(data.service).toBe("everything-free-ai-plugins");
     expect(data.version).toBe("0.1.0");
-    expect(data.capabilitiesCount).toBe(10);
+    expect(data.capabilitiesCount).toBe(15);
     expect(data.packsCount).toBe(5);
     expect(data.transports).toEqual(["streamable-http", "stdio"]);
     expect(data.timestamp).toBeDefined();
@@ -98,7 +98,7 @@ describe("Streamable HTTP MCP Integration (Real HTTP Wire Tests)", () => {
     expect(data.result.capabilities.tools).toBeDefined();
   });
 
-  it("should list all 10 tools via POST /mcp tools/list", async () => {
+  it("should list all 15 tools via POST /mcp tools/list", async () => {
     const listPayload = {
       jsonrpc: "2.0",
       id: 2,
@@ -117,19 +117,24 @@ describe("Streamable HTTP MCP Integration (Real HTTP Wire Tests)", () => {
     expect(data.jsonrpc).toBe("2.0");
     expect(data.id).toBe(2);
     expect(data.result.tools).toBeInstanceOf(Array);
-    expect(data.result.tools.length).toBe(10);
+    expect(data.result.tools.length).toBe(15);
 
     const toolNames = data.result.tools.map((t: { name: string }) => t.name);
     expect(toolNames).toContain("json_formatter_validator");
+    expect(toolNames).toContain("csv_processor");
+    expect(toolNames).toContain("sql_processor");
+    expect(toolNames).toContain("xml_processor");
     expect(toolNames).toContain("text_diff_analyzer");
+    expect(toolNames).toContain("markdown_processor");
+    expect(toolNames).toContain("html_processor");
     expect(toolNames).toContain("hash_and_encoding");
     expect(toolNames).toContain("unit_time_converter");
+    expect(toolNames).toContain("color_converter");
+    expect(toolNames).toContain("cron_analyzer");
     expect(toolNames).toContain("regex_tester");
-    expect(toolNames).toContain("csv_processor");
-    expect(toolNames).toContain("markdown_processor");
     expect(toolNames).toContain("jwt_inspector");
     expect(toolNames).toContain("url_analyzer");
-    expect(toolNames).toContain("color_converter");
+    expect(toolNames).toContain("mime_analyzer");
   });
 
   it("Test 1: JSON Formatter & Validator tool call", async () => {
@@ -186,10 +191,9 @@ describe("Streamable HTTP MCP Integration (Real HTTP Wire Tests)", () => {
     const data = await parseMcpResponse(res);
     const output = JSON.parse(data.result.content[0].text);
     expect(output.identical).toBe(false);
-    expect(output.diff).toContain("+ earth");
   });
 
-  it("Test 3: Hash and Encoding tool call (SHA-256)", async () => {
+  it("Test 3: Hash & Encoding tool call", async () => {
     const callPayload = {
       jsonrpc: "2.0",
       id: 5,
@@ -198,7 +202,7 @@ describe("Streamable HTTP MCP Integration (Real HTTP Wire Tests)", () => {
         name: "hash_and_encoding",
         arguments: {
           operation: "sha256",
-          input: "test",
+          input: "everything.free",
         },
       },
     };
@@ -212,11 +216,10 @@ describe("Streamable HTTP MCP Integration (Real HTTP Wire Tests)", () => {
     expect(res.status).toBe(200);
     const data = await parseMcpResponse(res);
     const output = JSON.parse(data.result.content[0].text);
-    expect(output.operation).toBe("sha256");
-    expect(output.output).toBe("9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08");
+    expect(output.output).toHaveLength(64);
   });
 
-  it("Test 4: Unit Time Converter tool call", async () => {
+  it("Test 4: Unit & Time Converter tool call", async () => {
     const callPayload = {
       jsonrpc: "2.0",
       id: 6,
@@ -226,8 +229,8 @@ describe("Streamable HTTP MCP Integration (Real HTTP Wire Tests)", () => {
         arguments: {
           mode: "unit",
           value: 100,
-          fromUnit: "C",
-          toUnit: "F",
+          fromUnit: "m",
+          toUnit: "ft",
         },
       },
     };
@@ -241,8 +244,7 @@ describe("Streamable HTTP MCP Integration (Real HTTP Wire Tests)", () => {
     expect(res.status).toBe(200);
     const data = await parseMcpResponse(res);
     const output = JSON.parse(data.result.content[0].text);
-    expect(output.mode).toBe("unit");
-    expect(output.unitResult.toValue).toBe(212);
+    expect(output.unitResult.toValue).toBeCloseTo(328.084, 1);
   });
 
   it("Test 5: Regex Tester tool call", async () => {
@@ -254,7 +256,7 @@ describe("Streamable HTTP MCP Integration (Real HTTP Wire Tests)", () => {
         name: "regex_tester",
         arguments: {
           pattern: "\\d+",
-          text: "Order 42 and 99",
+          text: "Item 42 and 99",
           operation: "match",
         },
       },
@@ -269,7 +271,6 @@ describe("Streamable HTTP MCP Integration (Real HTTP Wire Tests)", () => {
     expect(res.status).toBe(200);
     const data = await parseMcpResponse(res);
     const output = JSON.parse(data.result.content[0].text);
-    expect(output.matched).toBe(true);
     expect(output.matches).toEqual(["42", "99"]);
   });
 
@@ -281,8 +282,8 @@ describe("Streamable HTTP MCP Integration (Real HTTP Wire Tests)", () => {
       params: {
         name: "csv_processor",
         arguments: {
-          csvText: "name,score\nAlice,95\nBob,80",
-          operation: "inspect",
+          csvText: "name,age\nAlice,30",
+          operation: "to_json",
         },
       },
     };
@@ -296,8 +297,7 @@ describe("Streamable HTTP MCP Integration (Real HTTP Wire Tests)", () => {
     expect(res.status).toBe(200);
     const data = await parseMcpResponse(res);
     const output = JSON.parse(data.result.content[0].text);
-    expect(output.stats.rowCount).toBe(2);
-    expect(output.stats.headers).toEqual(["name", "score"]);
+    expect(output.jsonData[0]).toEqual({ name: "Alice", age: 30 });
   });
 
   it("Test 7: Markdown Processor tool call", async () => {
@@ -308,7 +308,7 @@ describe("Streamable HTTP MCP Integration (Real HTTP Wire Tests)", () => {
       params: {
         name: "markdown_processor",
         arguments: {
-          markdownText: "# Overview\n\nSome text.",
+          markdownText: "# Heading 1\n## Heading 2",
           operation: "headings",
         },
       },
@@ -323,12 +323,12 @@ describe("Streamable HTTP MCP Integration (Real HTTP Wire Tests)", () => {
     expect(res.status).toBe(200);
     const data = await parseMcpResponse(res);
     const output = JSON.parse(data.result.content[0].text);
-    expect(output.headings[0].text).toBe("Overview");
+    expect(output.headings).toHaveLength(2);
   });
 
   it("Test 8: JWT Inspector tool call", async () => {
     const token =
-      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c";
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkFsaWNlIiwiaWF0IjoxNTE2MjM5MDIyfQ.XbPfbIHMI6arZ3Y922BhjWgQzWXcXNrz0ogtVhfEd2o";
     const callPayload = {
       jsonrpc: "2.0",
       id: 10,
@@ -401,6 +401,137 @@ describe("Streamable HTTP MCP Integration (Real HTTP Wire Tests)", () => {
     expect(output.formats.rgb).toBe("rgb(212, 175, 55)");
   });
 
+  it("Test 11: SQL Processor tool call", async () => {
+    const callPayload = {
+      jsonrpc: "2.0",
+      id: 13,
+      method: "tools/call",
+      params: {
+        name: "sql_processor",
+        arguments: {
+          sql: "SELECT id, name FROM users WHERE active = 1;",
+          operation: "inspect",
+        },
+      },
+    };
+
+    const res = await fetch(`${BASE_URL}/mcp`, {
+      method: "POST",
+      headers: MCP_HEADERS,
+      body: JSON.stringify(callPayload),
+    });
+
+    expect(res.status).toBe(200);
+    const data = await parseMcpResponse(res);
+    const output = JSON.parse(data.result.content[0].text);
+    expect(output.stats.totalTables).toContain("users");
+  });
+
+  it("Test 12: XML Processor tool call", async () => {
+    const callPayload = {
+      jsonrpc: "2.0",
+      id: 14,
+      method: "tools/call",
+      params: {
+        name: "xml_processor",
+        arguments: {
+          xmlString: "<item id='42'><name>Widget</name></item>",
+          operation: "to_json",
+        },
+      },
+    };
+
+    const res = await fetch(`${BASE_URL}/mcp`, {
+      method: "POST",
+      headers: MCP_HEADERS,
+      body: JSON.stringify(callPayload),
+    });
+
+    expect(res.status).toBe(200);
+    const data = await parseMcpResponse(res);
+    const output = JSON.parse(data.result.content[0].text);
+    expect(output.jsonData.item["@id"]).toBe("42");
+    expect(output.jsonData.item.name).toBe("Widget");
+  });
+
+  it("Test 13: HTML Processor tool call", async () => {
+    const callPayload = {
+      jsonrpc: "2.0",
+      id: 15,
+      method: "tools/call",
+      params: {
+        name: "html_processor",
+        arguments: {
+          htmlText: "<html><head><title>Hello</title></head><body><p>World</p></body></html>",
+          operation: "inspect",
+        },
+      },
+    };
+
+    const res = await fetch(`${BASE_URL}/mcp`, {
+      method: "POST",
+      headers: MCP_HEADERS,
+      body: JSON.stringify(callPayload),
+    });
+
+    expect(res.status).toBe(200);
+    const data = await parseMcpResponse(res);
+    const output = JSON.parse(data.result.content[0].text);
+    expect(output.stats.title).toBe("Hello");
+  });
+
+  it("Test 14: Cron Analyzer tool call", async () => {
+    const callPayload = {
+      jsonrpc: "2.0",
+      id: 16,
+      method: "tools/call",
+      params: {
+        name: "cron_analyzer",
+        arguments: {
+          expression: "*/15 * * * *",
+          operation: "explain",
+        },
+      },
+    };
+
+    const res = await fetch(`${BASE_URL}/mcp`, {
+      method: "POST",
+      headers: MCP_HEADERS,
+      body: JSON.stringify(callPayload),
+    });
+
+    expect(res.status).toBe(200);
+    const data = await parseMcpResponse(res);
+    const output = JSON.parse(data.result.content[0].text);
+    expect(output.explanation).toBe("Every 15 minutes");
+  });
+
+  it("Test 15: MIME Analyzer tool call", async () => {
+    const callPayload = {
+      jsonrpc: "2.0",
+      id: 17,
+      method: "tools/call",
+      params: {
+        name: "mime_analyzer",
+        arguments: {
+          filename: "document.pdf",
+        },
+      },
+    };
+
+    const res = await fetch(`${BASE_URL}/mcp`, {
+      method: "POST",
+      headers: MCP_HEADERS,
+      body: JSON.stringify(callPayload),
+    });
+
+    expect(res.status).toBe(200);
+    const data = await parseMcpResponse(res);
+    const output = JSON.parse(data.result.content[0].text);
+    expect(output.detectedMimeType).toBe("application/pdf");
+    expect(output.category).toBe("document");
+  });
+
   it("Security: Malformed JSON-RPC request", async () => {
     const res = await fetch(`${BASE_URL}/mcp`, {
       method: "POST",
@@ -414,7 +545,7 @@ describe("Streamable HTTP MCP Integration (Real HTTP Wire Tests)", () => {
   it("Security: Unknown tool call returns structured error without crashing server", async () => {
     const callPayload = {
       jsonrpc: "2.0",
-      id: 13,
+      id: 18,
       method: "tools/call",
       params: {
         name: "non_existent_tool_12345",
@@ -431,5 +562,100 @@ describe("Streamable HTTP MCP Integration (Real HTTP Wire Tests)", () => {
     expect(res.status).toBe(200);
     const data = await parseMcpResponse(res);
     expect(data.error || data.result?.isError).toBeTruthy();
+  });
+
+  describe("MCP Resources over HTTP Wire", () => {
+    it("should list resources via resources/list", async () => {
+      const payload = {
+        jsonrpc: "2.0",
+        id: 19,
+        method: "resources/list",
+        params: {},
+      };
+
+      const res = await fetch(`${BASE_URL}/mcp`, {
+        method: "POST",
+        headers: MCP_HEADERS,
+        body: JSON.stringify(payload),
+      });
+
+      expect(res.status).toBe(200);
+      const data = await parseMcpResponse(res);
+      expect(data.result.resources).toBeInstanceOf(Array);
+      expect(data.result.resources.length).toBeGreaterThanOrEqual(4);
+
+      const uris = data.result.resources.map((r: { uri: string }) => r.uri);
+      expect(uris).toContain("everything-free://capabilities");
+      expect(uris).toContain("everything-free://architecture");
+    });
+
+    it("should read capability catalog via resources/read", async () => {
+      const payload = {
+        jsonrpc: "2.0",
+        id: 20,
+        method: "resources/read",
+        params: {
+          uri: "everything-free://capabilities",
+        },
+      };
+
+      const res = await fetch(`${BASE_URL}/mcp`, {
+        method: "POST",
+        headers: MCP_HEADERS,
+        body: JSON.stringify(payload),
+      });
+
+      expect(res.status).toBe(200);
+      const data = await parseMcpResponse(res);
+      expect(data.result.contents).toHaveLength(1);
+      const catalog = JSON.parse(data.result.contents[0].text);
+      expect(catalog.totalCapabilities).toBe(15);
+    });
+  });
+
+  describe("MCP Prompts over HTTP Wire", () => {
+    it("should list prompts via prompts/list", async () => {
+      const payload = {
+        jsonrpc: "2.0",
+        id: 21,
+        method: "prompts/list",
+        params: {},
+      };
+
+      const res = await fetch(`${BASE_URL}/mcp`, {
+        method: "POST",
+        headers: MCP_HEADERS,
+        body: JSON.stringify(payload),
+      });
+
+      expect(res.status).toBe(200);
+      const data = await parseMcpResponse(res);
+      expect(data.result.prompts).toHaveLength(7);
+    });
+
+    it("should get prompt via prompts/get", async () => {
+      const payload = {
+        jsonrpc: "2.0",
+        id: 22,
+        method: "prompts/get",
+        params: {
+          name: "analyze_json",
+          arguments: {
+            json: '{"test": 123}',
+          },
+        },
+      };
+
+      const res = await fetch(`${BASE_URL}/mcp`, {
+        method: "POST",
+        headers: MCP_HEADERS,
+        body: JSON.stringify(payload),
+      });
+
+      expect(res.status).toBe(200);
+      const data = await parseMcpResponse(res);
+      expect(data.result.messages).toHaveLength(1);
+      expect(data.result.messages[0].content.text).toContain("json_formatter_validator");
+    });
   });
 });

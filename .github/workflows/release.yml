@@ -1,0 +1,95 @@
+name: Release & Distribution
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+  workflow_dispatch:
+    inputs:
+      publish_npm:
+        description: "Publish to npm registry (via OIDC Trusted Publishing or NPM_TOKEN fallback)"
+        required: true
+        type: boolean
+        default: false
+
+permissions:
+  contents: write # Required for GitHub Release creation
+  id-token: write # Required for npm OIDC Trusted Publishing & automatic Provenance generation
+
+jobs:
+  validate-and-release:
+    name: Validate, Package & Publish
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js LTS (22.x)
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          registry-url: "https://registry.npmjs.org"
+          cache: "npm"
+
+      - name: Clean Dependency Installation
+        run: npm ci
+
+      - name: Verify Tag matches package.json Version
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: |
+          TAG_VERSION=${GITHUB_REF#refs/tags/v}
+          PKG_VERSION=$(node -p "require('./package.json').version")
+          echo "Tag Version: $TAG_VERSION, Package Version: $PKG_VERSION"
+          if [ "$TAG_VERSION" != "$PKG_VERSION" ]; then
+            echo "::error::Tag version ($TAG_VERSION) does not match package.json version ($PKG_VERSION)!"
+            exit 1
+          fi
+
+      - name: Run Typecheck
+        run: npm run typecheck
+
+      - name: Run Linter
+        run: npm run lint
+
+      - name: Run Full Test Suite
+        run: npm test
+
+      - name: Run Performance Benchmarks
+        run: npm run benchmark
+
+      - name: Compile Production Distribution
+        run: npm run build
+
+      - name: Verify Package Dry-Run
+        run: npm pack --dry-run
+
+      - name: Smoke Test Clean Tarball Installation
+        run: |
+          npm pack
+          mkdir -p /tmp/smoke-pkg
+          cd /tmp/smoke-pkg
+          npm init -y
+          npm install $GITHUB_WORKSPACE/everything.free-ai-plugins-*.tgz
+          npx everything.free-ai-plugins --version
+          npx everything.free-ai-plugins --help
+          npx everything-free --version
+          npx everything-free-ai-plugins --version
+
+      - name: Publish to npm (Trusted Publishing / OIDC with automatic Provenance)
+        if: startsWith(github.ref, 'refs/tags/v') || inputs.publish_npm == true
+        run: npm publish --provenance --access public
+        env:
+          # If NPM_TOKEN is configured in secrets, it acts as fallback;
+          # otherwise npm CLI automatically uses OIDC token from GitHub Actions id-token
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Create GitHub Release
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          body_path: CHANGELOG.md
+          draft: false
+          prerelease: false
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

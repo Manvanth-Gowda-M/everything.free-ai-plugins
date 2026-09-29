@@ -36,25 +36,30 @@ describe("MCP Server Integration (E2E Client Simulation)", () => {
     await client.close();
   });
 
-  it("should discover all 10 capabilities via tools/list", async () => {
+  it("should discover all 15 capabilities via tools/list", async () => {
     const toolsResult = await client.listTools();
 
     expect(toolsResult).toBeDefined();
     expect(toolsResult.tools).toBeInstanceOf(Array);
-    expect(toolsResult.tools.length).toBe(10);
+    expect(toolsResult.tools.length).toBe(15);
 
     const toolNames = toolsResult.tools.map((t) => t.name).sort();
     expect(toolNames).toEqual([
       "color_converter",
+      "cron_analyzer",
       "csv_processor",
       "hash_and_encoding",
+      "html_processor",
       "json_formatter_validator",
       "jwt_inspector",
       "markdown_processor",
+      "mime_analyzer",
       "regex_tester",
+      "sql_processor",
       "text_diff_analyzer",
       "unit_time_converter",
       "url_analyzer",
+      "xml_processor",
     ]);
   });
 
@@ -227,5 +232,202 @@ describe("MCP Server Integration (E2E Client Simulation)", () => {
 
     expect(parsedData.valid).toBe(true);
     expect(parsedData.formats.rgb).toBe("rgb(212, 175, 55)");
+  });
+
+  it("should execute sql_processor via tools/call", async () => {
+    const callResult = await client.callTool({
+      name: "sql_processor",
+      arguments: {
+        sql: "select id, email from users where active = true limit 5;",
+        operation: "format",
+      },
+    });
+
+    expect(callResult).toBeDefined();
+    const textContent = (callResult.content[0] as { type: string; text: string }).text;
+    const parsedData = JSON.parse(textContent);
+
+    expect(parsedData.operation).toBe("format");
+    expect(parsedData.result).toContain("SELECT");
+    expect(parsedData.result).toContain("WHERE");
+  });
+
+  it("should execute xml_processor via tools/call", async () => {
+    const callResult = await client.callTool({
+      name: "xml_processor",
+      arguments: {
+        xmlString: "<notes><note id='1'><text>Hello</text></note></notes>",
+        operation: "to_json",
+      },
+    });
+
+    expect(callResult).toBeDefined();
+    const textContent = (callResult.content[0] as { type: string; text: string }).text;
+    const parsedData = JSON.parse(textContent);
+
+    expect(parsedData.valid).toBe(true);
+    expect(parsedData.jsonData.notes).toBeDefined();
+  });
+
+  it("should execute html_processor via tools/call", async () => {
+    const callResult = await client.callTool({
+      name: "html_processor",
+      arguments: {
+        htmlText: "<html><head><title>Test Page</title></head><body><h1>Heading</h1></body></html>",
+        operation: "inspect",
+      },
+    });
+
+    expect(callResult).toBeDefined();
+    const textContent = (callResult.content[0] as { type: string; text: string }).text;
+    const parsedData = JSON.parse(textContent);
+
+    expect(parsedData.stats.title).toBe("Test Page");
+    expect(parsedData.stats.headingsCount.h1).toBe(1);
+  });
+
+  it("should execute cron_analyzer via tools/call", async () => {
+    const callResult = await client.callTool({
+      name: "cron_analyzer",
+      arguments: {
+        expression: "0 9 * * 1-5",
+        operation: "explain",
+      },
+    });
+
+    expect(callResult).toBeDefined();
+    const textContent = (callResult.content[0] as { type: string; text: string }).text;
+    const parsedData = JSON.parse(textContent);
+
+    expect(parsedData.valid).toBe(true);
+    expect(parsedData.explanation).toContain("09:00");
+  });
+
+  it("should execute mime_analyzer via tools/call", async () => {
+    const callResult = await client.callTool({
+      name: "mime_analyzer",
+      arguments: {
+        byteSample: "89504E470D0A1A0A",
+      },
+    });
+
+    expect(callResult).toBeDefined();
+    const textContent = (callResult.content[0] as { type: string; text: string }).text;
+    const parsedData = JSON.parse(textContent);
+
+    expect(parsedData.detectedMimeType).toBe("image/png");
+    expect(parsedData.category).toBe("image");
+  });
+
+  describe("MCP Resources Discovery & Retrieval", () => {
+    it("discovers static MCP resources via resources/list", async () => {
+      const res = await client.listResources();
+      expect(res).toBeDefined();
+      expect(res.resources).toBeInstanceOf(Array);
+      expect(res.resources.length).toBeGreaterThanOrEqual(4);
+
+      const uris = res.resources.map((r) => r.uri);
+      expect(uris).toContain("everything-free://capabilities");
+      expect(uris).toContain("everything-free://architecture");
+      expect(uris).toContain("everything-free://security");
+      expect(uris).toContain("everything-free://privacy");
+    });
+
+    it("reads capability catalog resource via resources/read", async () => {
+      const res = await client.readResource({
+        uri: "everything-free://capabilities",
+      });
+
+      expect(res).toBeDefined();
+      expect(res.contents).toHaveLength(1);
+      const content = res.contents[0] as { uri: string; mimeType?: string; text: string };
+      expect(content.uri).toBe("everything-free://capabilities");
+      expect(content.mimeType).toBe("application/json");
+
+      const catalog = JSON.parse(content.text);
+      expect(catalog.service).toBe("everything-free-ai-plugins");
+      expect(catalog.totalCapabilities).toBe(15);
+      expect(catalog.capabilities).toHaveLength(15);
+    });
+
+    it("reads individual capability doc via resource template", async () => {
+      const res = await client.readResource({
+        uri: "everything-free://capabilities/json_formatter_validator",
+      });
+
+      expect(res).toBeDefined();
+      expect(res.contents).toHaveLength(1);
+      const content = res.contents[0] as { uri: string; mimeType?: string; text: string };
+      expect(content.uri).toBe("everything-free://capabilities/json_formatter_validator");
+      expect(content.mimeType).toBe("text/markdown");
+      expect(content.text).toContain("# JSON Formatter & Validator");
+      expect(content.text).toContain("Data Pack");
+    });
+
+    it("reads architecture and security resources", async () => {
+      const archRes = await client.readResource({
+        uri: "everything-free://architecture",
+      });
+      const archContent = archRes.contents[0] as { text: string };
+      expect(archContent.text).toContain("# Everything.Free AI Plugins Architecture");
+
+      const secRes = await client.readResource({
+        uri: "everything-free://security",
+      });
+      const secContent = secRes.contents[0] as { text: string };
+      expect(secContent.text).toContain("# Everything.Free Security Model");
+    });
+  });
+
+  describe("MCP Prompts Discovery & Retrieval", () => {
+    it("discovers all curated prompts via prompts/list", async () => {
+      const res = await client.listPrompts();
+      expect(res).toBeDefined();
+      expect(res.prompts).toHaveLength(7);
+
+      const names = res.prompts.map((p) => p.name).sort();
+      expect(names).toEqual([
+        "analyze_csv",
+        "analyze_json",
+        "analyze_text",
+        "analyze_web_document",
+        "data_transform",
+        "developer_debug",
+        "schedule_analysis",
+      ]);
+    });
+
+    it("retrieves analyze_json prompt with arguments via prompts/get", async () => {
+      const res = await client.getPrompt({
+        name: "analyze_json",
+        arguments: {
+          json: '{"test": true}',
+          operation: "validate",
+        },
+      });
+
+      expect(res).toBeDefined();
+      expect(res.messages).toHaveLength(1);
+      const msg = res.messages[0];
+      expect(msg.role).toBe("user");
+      const text = (msg.content as { type: string; text: string }).text;
+      expect(text).toContain("json_formatter_validator");
+      expect(text).toContain('{"test": true}');
+    });
+
+    it("retrieves schedule_analysis prompt with arguments via prompts/get", async () => {
+      const res = await client.getPrompt({
+        name: "schedule_analysis",
+        arguments: {
+          expression: "0 0 1 1 *",
+        },
+      });
+
+      expect(res).toBeDefined();
+      expect(res.messages).toHaveLength(1);
+      const text = (res.messages[0].content as { type: string; text: string }).text;
+      expect(text).toContain("cron_analyzer");
+      expect(text).toContain("0 0 1 1 *");
+    });
   });
 });

@@ -6,11 +6,11 @@ describe("Capability Quality & AI Discoverability Metadata Tests", () => {
   const registry = createDefaultRegistry();
   const capabilities = registry.getAll();
 
-  it("should have exactly 10 registered capabilities with unique names", () => {
-    expect(capabilities.length).toBe(10);
+  it("should have exactly 15 registered capabilities with unique names", () => {
+    expect(capabilities.length).toBe(15);
     const names = capabilities.map((c) => c.metadata.name);
     const uniqueNames = new Set(names);
-    expect(uniqueNames.size).toBe(10);
+    expect(uniqueNames.size).toBe(15);
   });
 
   it("every capability should belong to a valid Capability Pack", () => {
@@ -67,7 +67,7 @@ describe("Capability Quality & AI Discoverability Metadata Tests", () => {
     }
   });
 
-  it("all 10 capabilities must operate 100% free and local-only without external network requirements", () => {
+  it("all 15 capabilities must operate 100% free and local-only without external network requirements", () => {
     for (const cap of capabilities) {
       expect(cap.metadata.requiresExternalNetwork).toBe(false);
       expect(cap.metadata.isFree).toBe(true);

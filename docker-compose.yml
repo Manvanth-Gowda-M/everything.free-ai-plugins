@@ -1,0 +1,28 @@
+services:
+  everything-free:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: everything-free-ai-plugins:latest
+    container_name: everything-free-ai-plugins
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:3000:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - HOST=0.0.0.0
+      - MAX_CONCURRENT_REQUESTS=20
+      - MAX_BODY_SIZE_BYTES=1048576
+      - SHUTDOWN_TIMEOUT_MS=5000
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+    tmpfs:
+      - /tmp
+    healthcheck:
+      test: ["CMD-SHELL", "node -e \"fetch('http://127.0.0.1:3000/health').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))\""]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 5s

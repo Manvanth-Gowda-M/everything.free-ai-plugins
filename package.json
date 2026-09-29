@@ -6,7 +6,29 @@
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "bin": {
-    "everything-free": "./dist/server.js"
+    "everything-free": "./dist/server.js",
+    "everything-free-ai-plugins": "./dist/server.js",
+    "everything.free-ai-plugins": "./dist/server.js"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Quilonix/everything.free-ai-plugins.git"
+  },
+  "homepage": "https://github.com/Quilonix/everything.free-ai-plugins#readme",
+  "bugs": {
+    "url": "https://github.com/Quilonix/everything.free-ai-plugins/issues"
   },
   "scripts": {
     "build": "tsc",
@@ -14,6 +36,7 @@
     "dev:stdio": "tsx src/server.ts --stdio",
     "start": "node dist/server.js",
     "start:stdio": "node dist/server.js --stdio",
+    "benchmark": "tsx src/benchmark.ts",
     "test": "vitest run",
     "test:watch": "vitest",
     "typecheck": "tsc --noEmit",
@@ -24,6 +47,8 @@
     "mcp",
     "model-context-protocol",
     "chatgpt",
+    "claude",
+    "gemini",
     "ai-plugin",
     "free-ai",
     "tools",
@@ -46,6 +71,6 @@
     "vitest": "^3.0.7"
   },
   "engines": {
-    "node": ">=20.0.0"
+    "node": ">=22.0.0"
   }
 }

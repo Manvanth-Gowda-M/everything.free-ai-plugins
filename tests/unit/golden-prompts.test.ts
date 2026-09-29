@@ -11,6 +11,11 @@ import { MarkdownProcessorOutput } from "../../src/capabilities/text/markdown-pr
 import { JwtInspectionOutput } from "../../src/capabilities/developer/jwt-inspector.js";
 import { UrlAnalyzerOutput } from "../../src/capabilities/developer/url-analyzer.js";
 import { ColorConverterOutput } from "../../src/capabilities/utility/color-converter.js";
+import { SqlProcessorOutput } from "../../src/capabilities/data/sql-processor.js";
+import { XmlProcessorOutput } from "../../src/capabilities/data/xml-processor.js";
+import { HtmlProcessorOutput } from "../../src/capabilities/text/html-processor.js";
+import { CronAnalyzerOutput } from "../../src/capabilities/utility/cron-analyzer.js";
+import { MimeAnalyzerOutput } from "../../src/capabilities/developer/mime-analyzer.js";
 
 describe("Golden Prompt Test Cases (Simulated Real-World ChatGPT Invocations)", () => {
   const registry = createDefaultRegistry();
@@ -322,9 +327,133 @@ const x: number = 42;
     });
   });
 
+  describe("SQL Processor Golden Prompts (sql_processor)", () => {
+    const cap = registry.get("sql_processor")!;
+
+    it("Golden 1: Format unformatted SQL query with JOIN and WHERE", async () => {
+      const res = await ExecutionRunner.run<SqlProcessorOutput>(cap, {
+        sql: "select u.id, u.email from users u inner join accounts a on u.id = a.user_id where a.balance > 1000 order by u.id asc;",
+        operation: "format",
+      });
+      expect(res.success).toBe(true);
+      expect(res.data?.result).toContain("SELECT");
+      expect(res.data?.result).toContain("INNER JOIN");
+      expect(res.data?.result).toContain("ORDER BY");
+    });
+
+    it("Golden 2: Inspect tables and placeholders referenced in query", async () => {
+      const res = await ExecutionRunner.run<SqlProcessorOutput>(cap, {
+        sql: "SELECT * FROM orders WHERE customer_id = $1 AND status = 'COMPLETED';",
+        operation: "inspect",
+      });
+      expect(res.success).toBe(true);
+      expect(res.data?.stats?.totalTables).toContain("orders");
+      expect(res.data?.stats?.totalParameters).toContain("$1");
+    });
+  });
+
+  describe("XML Processor Golden Prompts (xml_processor)", () => {
+    const cap = registry.get("xml_processor")!;
+
+    it("Golden 1: Convert XML to JSON", async () => {
+      const res = await ExecutionRunner.run<XmlProcessorOutput>(cap, {
+        xmlString: `<catalog><item id="1"><title>Widget</title><price>9.99</price></item></catalog>`,
+        operation: "to_json",
+      });
+      expect(res.success).toBe(true);
+      expect(res.data?.jsonData?.catalog).toBeDefined();
+    });
+
+    it("Golden 2: Inspect XML hierarchy and element count", async () => {
+      const res = await ExecutionRunner.run<XmlProcessorOutput>(cap, {
+        xmlString: `<root xmlns="http://example.com"><child1/><child2/></root>`,
+        operation: "inspect",
+      });
+      expect(res.success).toBe(true);
+      expect(res.data?.stats?.elementCount).toBe(3);
+      expect(res.data?.stats?.rootElement).toBe("root");
+    });
+  });
+
+  describe("HTML Processor Golden Prompts (html_processor)", () => {
+    const cap = registry.get("html_processor")!;
+
+    it("Golden 1: Extract links, headings, and clean text from HTML document", async () => {
+      const res = await ExecutionRunner.run<HtmlProcessorOutput>(cap, {
+        htmlText: `<html><body><h1>API Docs</h1><p>Read the <a href="https://quilonix.dev">docs</a></p></body></html>`,
+        operation: "extract",
+      });
+      expect(res.success).toBe(true);
+      expect(res.data?.extracted?.headings?.[0].text).toBe("API Docs");
+      expect(res.data?.extracted?.links?.[0].href).toBe("https://quilonix.dev");
+      expect(res.data?.extracted?.text).toContain("API Docs");
+    });
+
+    it("Golden 2: Clean dangerous script tags and inline onclick handlers", async () => {
+      const res = await ExecutionRunner.run<HtmlProcessorOutput>(cap, {
+        htmlText: `<div onclick="evil()"><h3>Safe</h3><script>alert(1)</script></div>`,
+        operation: "clean",
+      });
+      expect(res.success).toBe(true);
+      expect(res.data?.cleanResult?.cleanedHtml).not.toContain("<script>");
+      expect(res.data?.cleanResult?.cleanedHtml).not.toContain("onclick=");
+      expect(res.data?.cleanResult?.cleanedHtml).toContain("<h3>Safe</h3>");
+    });
+  });
+
+  describe("Cron Analyzer Golden Prompts (cron_analyzer)", () => {
+    const cap = registry.get("cron_analyzer")!;
+
+    it("Golden 1: Explain cron expression in plain English", async () => {
+      const res = await ExecutionRunner.run<CronAnalyzerOutput>(cap, {
+        expression: "0 9 * * 1-5",
+        operation: "explain",
+      });
+      expect(res.success).toBe(true);
+      expect(res.data?.explanation).toContain("09:00");
+      expect(res.data?.explanation).toContain("Monday through Friday");
+    });
+
+    it("Golden 2: Calculate next 3 matching occurrences from deterministic base time", async () => {
+      const res = await ExecutionRunner.run<CronAnalyzerOutput>(cap, {
+        expression: "0 0 1 * *",
+        operation: "next_matches",
+        baseTime: "2025-01-01T00:00:00.000Z",
+        count: 3,
+      });
+      expect(res.success).toBe(true);
+      expect(res.data?.matches).toHaveLength(3);
+      expect(res.data?.matches?.[0].iso).toBe("2025-02-01T00:00:00.000Z");
+      expect(res.data?.matches?.[1].iso).toBe("2025-03-01T00:00:00.000Z");
+      expect(res.data?.matches?.[2].iso).toBe("2025-04-01T00:00:00.000Z");
+    });
+  });
+
+  describe("MIME Analyzer Golden Prompts (mime_analyzer)", () => {
+    const cap = registry.get("mime_analyzer")!;
+
+    it("Golden 1: Detect PNG image from Hex magic bytes", async () => {
+      const res = await ExecutionRunner.run<MimeAnalyzerOutput>(cap, {
+        byteSample: "89504E470D0A1A0A0000000D49484452",
+      });
+      expect(res.success).toBe(true);
+      expect(res.data?.detectedMimeType).toBe("image/png");
+      expect(res.data?.category).toBe("image");
+      expect(res.data?.confidence).toBe("high");
+    });
+
+    it("Golden 2: Identify extension and declared MIME mismatch", async () => {
+      const res = await ExecutionRunner.run<MimeAnalyzerOutput>(cap, {
+        filename: "document.pdf",
+        declaredMimeType: "image/png",
+      });
+      expect(res.success).toBe(true);
+      expect(res.data?.mismatchDetected).toBe(true);
+    });
+  });
+
   describe("Cross-Capability Selection & Tool Disambiguation", () => {
     it("Disambiguation 1: JSON compare vs JSON format -> text_diff_analyzer", async () => {
-      // When user asks to compare two JSON configs, text_diff_analyzer should be used
       const diffCap = registry.get("text_diff_analyzer")!;
       const res = await ExecutionRunner.run<TextDiffOutput>(diffCap, {
         original: '{"port": 3000, "debug": true}',
@@ -336,7 +465,6 @@ const x: number = 42;
     });
 
     it("Disambiguation 2: CSV to JSON vs JSON format -> csv_processor", async () => {
-      // When user asks to convert tabular data to JSON, csv_processor is selected
       const csvCap = registry.get("csv_processor")!;
       const res = await ExecutionRunner.run<CsvProcessorOutput>(csvCap, {
         csvText: "name,role\nAlice,Admin\nBob,Member",
@@ -347,7 +475,6 @@ const x: number = 42;
     });
 
     it("Disambiguation 3: JWT claims inspection vs general hash -> jwt_inspector", async () => {
-      // When user asks for token claims, jwt_inspector is selected
       const jwtCap = registry.get("jwt_inspector")!;
       const token =
         "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkFsaWNlIiwiaWF0IjoxNTE2MjM5MDIyfQ.XbPfbIHMI6arZ3Y922BhjWgQzWXcXNrz0ogtVhfEd2o";
@@ -359,13 +486,61 @@ const x: number = 42;
     });
 
     it("Disambiguation 4: Static URL decomposition vs regex extraction -> url_analyzer", async () => {
-      // When user asks to parse URL components, url_analyzer is selected
       const urlCap = registry.get("url_analyzer")!;
       const res = await ExecutionRunner.run<UrlAnalyzerOutput>(urlCap, {
         url: "https://example.com:3000/api/v1/resource?filter=active",
       });
       expect(res.success).toBe(true);
       expect(res.data?.components.port).toBe("3000");
+    });
+
+    it("Disambiguation 5: SQL text format vs database execution -> sql_processor", async () => {
+      const sqlCap = registry.get("sql_processor")!;
+      const res = await ExecutionRunner.run<SqlProcessorOutput>(sqlCap, {
+        sql: "select count(*) from logs where created_at > now() - interval '1 day';",
+        operation: "format",
+      });
+      expect(res.success).toBe(true);
+      expect(res.data?.result).toContain("SELECT");
+    });
+
+    it("Disambiguation 6: XML to JSON vs CSV to JSON -> xml_processor", async () => {
+      const xmlCap = registry.get("xml_processor")!;
+      const res = await ExecutionRunner.run<XmlProcessorOutput>(xmlCap, {
+        xmlString: "<config><env>production</env></config>",
+        operation: "to_json",
+      });
+      expect(res.success).toBe(true);
+      expect(res.data?.jsonData?.config).toBeDefined();
+    });
+
+    it("Disambiguation 7: HTML extraction vs Markdown processing -> html_processor", async () => {
+      const htmlCap = registry.get("html_processor")!;
+      const res = await ExecutionRunner.run<HtmlProcessorOutput>(htmlCap, {
+        htmlText: "<h2>Release Notes</h2><p>V1 is live</p>",
+        operation: "extract",
+      });
+      expect(res.success).toBe(true);
+      expect(res.data?.extracted?.headings?.[0].text).toBe("Release Notes");
+    });
+
+    it("Disambiguation 8: Cron explanation vs time conversion -> cron_analyzer", async () => {
+      const cronCap = registry.get("cron_analyzer")!;
+      const res = await ExecutionRunner.run<CronAnalyzerOutput>(cronCap, {
+        expression: "*/30 * * * *",
+        operation: "explain",
+      });
+      expect(res.success).toBe(true);
+      expect(res.data?.explanation).toBe("Every 30 minutes");
+    });
+
+    it("Disambiguation 9: Magic byte detection vs cryptographic hash -> mime_analyzer", async () => {
+      const mimeCap = registry.get("mime_analyzer")!;
+      const res = await ExecutionRunner.run<MimeAnalyzerOutput>(mimeCap, {
+        byteSample: "47494638396101000100800000000000",
+      });
+      expect(res.success).toBe(true);
+      expect(res.data?.detectedMimeType).toBe("image/gif");
     });
   });
 });
