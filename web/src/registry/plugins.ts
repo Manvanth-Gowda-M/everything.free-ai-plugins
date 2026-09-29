@@ -98,23 +98,37 @@ export const PLUGINS: Plugin[] = [
         requiresAuthentication: false,
         requiresOAuth: false,
         requiresManualSetup: true,
-        endpoint: "https://your-remote-domain.com/mcp",
-        instructions: [
-          "Requirements: Remote HTTPS MCP endpoint accessible to OpenAI servers (or local server exposed via secure HTTPS tunnel such as Cloudflare Tunnel or ngrok).",
-          "Step 1: Start the Everything.Free HTTP MCP server: `npx everything.free-ai-plugins` or run in Docker.",
-          "Step 2: Expose your local port 3456 with a public HTTPS tunnel, or deploy to a public HTTPS server.",
-          "Step 3: In ChatGPT, navigate to Settings → Connected Apps / Developer Mode → Add New MCP Server.",
-          "Step 4: Enter your public HTTPS URL (e.g. `https://your-tunnel.trycloudflare.com/mcp`) and select Authentication: 'None'.",
-          "Step 5: Authorize the connection in ChatGPT to discover all 15 capabilities.",
-        ],
-        setupSnippet: `# 1. Run local MCP HTTP Server on port 3456
+        endpoint: ENVIRONMENT_CONFIG.isHostedMcpActive
+          ? ENVIRONMENT_CONFIG.publicMcpUrl
+          : "http://localhost:3456/mcp",
+        instructions: ENVIRONMENT_CONFIG.isHostedMcpActive
+          ? [
+              `Step 1: Copy the public Everything.Free MCP endpoint: ${ENVIRONMENT_CONFIG.publicMcpUrl}.`,
+              "Step 2: In ChatGPT, navigate to Settings → Connected Apps / Developer Mode → Add New MCP Server.",
+              "Step 3: Enter the public HTTPS endpoint and select Authentication: 'None' (100% Key-Free).",
+              "Step 4: Authorize the connection in ChatGPT to discover all 15 capabilities across 5 packs.",
+            ]
+          : [
+              "Requirements: Remote HTTPS MCP endpoint accessible to OpenAI servers (or local server exposed via secure HTTPS tunnel such as Cloudflare Tunnel or ngrok).",
+              "Step 1: Start the Everything.Free HTTP MCP server: `npx everything.free-ai-plugins` or run in Docker.",
+              "Step 2: Expose your local port 3456 with a public HTTPS tunnel, or deploy to a public HTTPS server.",
+              "Step 3: In ChatGPT, navigate to Settings → Connected Apps / Developer Mode → Add New MCP Server.",
+              "Step 4: Enter your public HTTPS URL (e.g. `https://your-tunnel.trycloudflare.com/mcp`) and select Authentication: 'None'.",
+              "Step 5: Authorize the connection in ChatGPT to discover all 15 capabilities.",
+            ],
+        setupSnippet: ENVIRONMENT_CONFIG.isHostedMcpActive
+          ? `# Public Hosted MCP Endpoint for ChatGPT:
+${ENVIRONMENT_CONFIG.publicMcpUrl || "https://mcp.everything.free/mcp"}
+
+# Authentication: None (100% Key-Free)`
+          : `# 1. Run local MCP HTTP Server on port 3456
 npx everything.free-ai-plugins
 
 # 2. Expose via secure HTTPS tunnel for ChatGPT
 cloudflared tunnel --url http://localhost:3456
 
 # 3. Use the generated HTTPS URL in ChatGPT Developer Mode`,
-        snippetLanguage: "bash",
+        snippetLanguage: ENVIRONMENT_CONFIG.isHostedMcpActive ? "text" : "bash",
         officialDocumentationUrl: "https://platform.openai.com/docs/actions",
       },
       {
@@ -216,16 +230,27 @@ const model = genAI.getGenerativeModel({
         icon: "terminal",
         status: "available",
         connectionType: "manual",
-        transport: "streamable_http_or_stdio",
+        transport: ENVIRONMENT_CONFIG.isHostedMcpActive ? "streamable_http" : "streamable_http_or_stdio",
         requiresRemoteServer: false,
         requiresAuthentication: false,
         requiresOAuth: false,
         requiresManualSetup: true,
-        instructions: [
-          "Connect via Streamable HTTP at `http://localhost:3456/mcp` (local) or via `npx everything.free-ai-plugins --stdio`.",
-          "Protocol follows official JSON-RPC 2.0 specifications with `tools/list`, `tools/call`, `resources/list`, and `prompts/list`.",
-        ],
-        setupSnippet: `# Connect via stdio client
+        instructions: ENVIRONMENT_CONFIG.isHostedMcpActive
+          ? [
+              `Connect directly via Streamable HTTP using the hosted HTTPS endpoint: ${ENVIRONMENT_CONFIG.publicMcpUrl}.`,
+              "Protocol follows official JSON-RPC 2.0 specifications (`tools/list`, `tools/call`, `resources/list`, `prompts/list`).",
+            ]
+          : [
+              "Connect via Streamable HTTP at `http://localhost:3456/mcp` (local) or via `npx everything.free-ai-plugins --stdio`.",
+              "Protocol follows official JSON-RPC 2.0 specifications with `tools/list`, `tools/call`, `resources/list`, and `prompts/list`.",
+            ],
+        setupSnippet: ENVIRONMENT_CONFIG.isHostedMcpActive
+          ? `# Inspect live hosted health probe
+curl -i ${ENVIRONMENT_CONFIG.publicMcpUrl.replace(/\/mcp$/, "/health")}
+
+# Streamable HTTP MCP Endpoint
+${ENVIRONMENT_CONFIG.publicMcpUrl}`
+          : `# Connect via stdio client
 npx everything.free-ai-plugins --stdio
 
 # Or inspect local health endpoint during development
@@ -458,7 +483,9 @@ curl http://localhost:3456/health`,
     ],
     mcpInfo: {
       transport: ["streamable-http", "stdio"],
-      httpEndpoint: "http://localhost:3456/mcp",
+      httpEndpoint: ENVIRONMENT_CONFIG.isHostedMcpActive
+        ? ENVIRONMENT_CONFIG.publicMcpUrl
+        : "http://localhost:3456/mcp",
       stdioCommand: "npx",
       stdioArgs: ["-y", "everything.free-ai-plugins", "--stdio"],
       capabilitiesCount: 15,

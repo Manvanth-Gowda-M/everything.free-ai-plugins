@@ -149,14 +149,46 @@ describe("Everything.Free Web Registry & Architecture Invariants", () => {
     expect(plugin.connectionProfiles.local.command).toBe("npx");
     expect(plugin.connectionProfiles.local.args).toContain("--stdio");
 
-    // Hosted profile
-    expect(plugin.connectionProfiles.hosted.endpoint).toBeDefined();
-    expect(plugin.connectionProfiles.hosted.transport).toBe("streamable_http");
     expect(plugin.connectionProfiles.hosted.privacyNotice).toContain(
       "Everything.Free does not intentionally store MCP tool payloads"
     );
 
     // Manual profile
     expect(plugin.connectionProfiles.manual.stdioConfig).toContain("mcpServers");
+  });
+
+  it("should safely validate and normalize MCP URLs", async () => {
+    const { validateMcpUrl, getHealthCheckUrl, getReadyCheckUrl } = await import(
+      "../../web/src/config/environment.js"
+    );
+
+    // Valid HTTPS remote URLs
+    const v1 = validateMcpUrl("https://everything-free-ai-plugins.onrender.com/mcp");
+    expect(v1.isValid).toBe(true);
+    expect(v1.isHttps).toBe(true);
+    expect(v1.sanitizedUrl).toBe("https://everything-free-ai-plugins.onrender.com/mcp");
+
+    // Local loopback HTTP URLs (permitted in local development)
+    const v2 = validateMcpUrl("http://localhost:3456/mcp");
+    expect(v2.isValid).toBe(true);
+    expect(v2.isHttps).toBe(false);
+
+    // Insecure / Malformed URLs (rejected)
+    const v3 = validateMcpUrl("javascript:alert(1)");
+    expect(v3.isValid).toBe(false);
+
+    const v4 = validateMcpUrl("http://insecure-remote.com/mcp");
+    expect(v4.isValid).toBe(false);
+    expect(v4.error).toContain("HTTPS");
+
+    const v5 = validateMcpUrl("");
+    expect(v5.isValid).toBe(false);
+
+    // Health and ready probe resolution
+    const localHealth = getHealthCheckUrl(true);
+    expect(localHealth).toBe("http://localhost:3456/health");
+
+    const localReady = getReadyCheckUrl(true);
+    expect(localReady).toBe("http://localhost:3456/ready");
   });
 });

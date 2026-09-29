@@ -149,6 +149,9 @@ export function renderDetailView(slug: string): string {
                   <h1 style="font-size: 1.85rem; line-height: 1.2;">${plugin.name}</h1>
                   <span class="badge badge-gold">v${plugin.version}</span>
                   <span class="badge badge-emerald">100% Free</span>
+                  <span class="badge ${plugin.hostingStatus === "HOSTED" ? "badge-emerald" : "badge-slate"}">
+                    ${plugin.hostingStatus === "HOSTED" ? "🌐 Hosted Remote MCP" : "💻 Local Sub-Process"}
+                  </span>
                   <span class="badge badge-slate">MIT License</span>
                 </div>
                 <p class="text-lead" style="font-size: 1.05rem; color: var(--text-secondary); max-width: 640px;">
@@ -229,8 +232,16 @@ export function renderDetailView(slug: string): string {
                   <span class="code-inline">${plugin.mcpInfo.protocolVersion}</span>
                 </li>
                 <li class="flex justify-between">
+                  <span class="text-muted">Hosting:</span>
+                  <strong style="color: var(--text-primary);">${plugin.hostingStatus === "HOSTED" ? "Hosted Cloud MCP" : "Local Process"}</strong>
+                </li>
+                <li class="flex justify-between">
                   <span class="text-muted">Transports:</span>
                   <span>${plugin.mcpInfo.transport.join(", ")}</span>
+                </li>
+                <li class="flex justify-between">
+                  <span class="text-muted">Authentication:</span>
+                  <strong style="color: var(--accent-emerald);">None (100% Free)</strong>
                 </li>
                 <li class="flex justify-between">
                   <span class="text-muted">Capabilities:</span>
@@ -248,8 +259,8 @@ export function renderDetailView(slug: string): string {
                   plugin.mcpInfo.httpEndpoint
                     ? `
                   <li style="border-top: 1px solid var(--border-subtle); padding-top: 0.5rem;">
-                    <div class="text-muted mb-1">Local HTTP Endpoint:</div>
-                    <div class="code-inline" style="word-break: break-all;">${plugin.mcpInfo.httpEndpoint}</div>
+                    <div class="text-muted mb-1">${plugin.hostingStatus === "HOSTED" ? "Public MCP Endpoint:" : "Local HTTP Endpoint:"}</div>
+                    <div class="code-inline" style="word-break: break-all; font-size: 0.775rem;">${plugin.mcpInfo.httpEndpoint}</div>
                   </li>
                 `
                     : ""
@@ -263,10 +274,12 @@ export function renderDetailView(slug: string): string {
                 🛡️ Privacy & Permissions Audit
               </h3>
               <ul style="display: flex; flex-direction: column; gap: 0.6rem; font-size: 0.85rem;">
-                <li style="color: var(--accent-emerald);">✓ 100% Local Execution</li>
-                <li style="color: var(--accent-emerald);">✓ Zero Network Outbound Egress</li>
+                <li style="color: var(--accent-emerald);">
+                  ✓ ${plugin.hostingStatus === "HOSTED" ? "Transient In-Memory Execution" : "100% Local Execution"}
+                </li>
+                <li style="color: var(--accent-emerald);">✓ Zero Tool Payload Storage</li>
                 <li style="color: var(--accent-emerald);">✓ Zero Analytics or Telemetry</li>
-                <li style="color: var(--accent-emerald);">✓ Zero Data Retention (In-Memory)</li>
+                <li style="color: var(--accent-emerald);">✓ Zero Data Retention</li>
                 <li style="color: var(--accent-emerald);">✓ No API Keys or Secrets Required</li>
                 <li style="color: var(--accent-emerald);">✓ Open-Source MIT Verified</li>
               </ul>

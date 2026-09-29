@@ -85,29 +85,24 @@ npx everything.free-ai-plugins --stdio</code></pre>
             <section id="chatgpt" class="card mb-8" style="padding: var(--space-8);">
               <h2 style="font-size: 1.6rem; color: var(--text-primary); margin-bottom: 0.75rem;">3. Connecting to ChatGPT</h2>
               <p>
-                OpenAI ChatGPT interacts with MCP servers via <strong>Remote HTTPS Streamable HTTP endpoints</strong> in ChatGPT Developer Mode / Custom Workspace Actions.
+                OpenAI ChatGPT connects to Everything.Free via <strong>Remote HTTPS Streamable HTTP endpoints</strong> in ChatGPT Developer Mode / Custom Workspace Actions.
               </p>
 
-              <div class="card my-4" style="background-color: var(--bg-surface); border-color: var(--accent-gold-border);">
-                <div class="flex items-start gap-2">
-                  <span>ℹ️</span>
-                  <div>
-                    <strong style="color: var(--accent-gold);">Remote HTTPS Requirement:</strong>
-                    <p style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 4px;">
-                      Because OpenAI's cloud servers initiate the HTTP requests, ChatGPT cannot directly reach <code class="code-inline">http://localhost:3456</code> on your machine without a secure HTTPS tunnel or a publicly deployed host.
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              <h3 style="font-size: 1.15rem; color: var(--accent-gold); margin-top: 1.5rem; margin-bottom: 0.5rem;">Supported Setup Path</h3>
-              <ol style="padding-left: 1.5rem; list-style-type: decimal; margin-bottom: 1rem;">
-                <li style="margin-bottom: 0.5rem;">Start your Everything.Free server locally: <code class="code-inline">npx everything.free-ai-plugins</code> (runs on port 3456).</li>
-                <li style="margin-bottom: 0.5rem;">Expose port 3456 with a secure HTTPS tunnel (e.g., Cloudflare Tunnel: <code class="code-inline">cloudflared tunnel --url http://localhost:3456</code>) or deploy the Docker container to an HTTPS host.</li>
+              <h3 style="font-size: 1.15rem; color: var(--accent-emerald); margin-top: 1.5rem; margin-bottom: 0.5rem;">Option A: Hosted Cloud MCP (Zero Setup)</h3>
+              <p>When connecting to the hosted Everything.Free cloud service, no local runtime or tunnel is needed:</p>
+              <ol style="padding-left: 1.5rem; list-style-type: decimal; margin-top: 0.5rem; margin-bottom: 1rem;">
+                <li style="margin-bottom: 0.5rem;">Copy the public Everything.Free MCP endpoint URL from the connection modal.</li>
                 <li style="margin-bottom: 0.5rem;">In ChatGPT, navigate to <strong>Settings → Connected Apps / Developer Mode → Add New MCP Server</strong>.</li>
-                <li style="margin-bottom: 0.5rem;">Enter your public HTTPS URL (e.g. <code class="code-inline">https://your-tunnel.trycloudflare.com/mcp</code>).</li>
-                <li style="margin-bottom: 0.5rem;">Select Authentication: <strong>None</strong> (Everything.Free is 100% key-free).</li>
-                <li style="margin-bottom: 0.5rem;">Click Authorize. ChatGPT will discover all 15 capabilities, 19 resources, and 7 prompts.</li>
+                <li style="margin-bottom: 0.5rem;">Paste the HTTPS URL and select Authentication: <strong>None</strong> (100% key-free).</li>
+                <li style="margin-bottom: 0.5rem;">Click Authorize. ChatGPT will discover all 15 capabilities across 5 packs.</li>
+              </ol>
+
+              <h3 style="font-size: 1.15rem; color: var(--accent-gold); margin-top: 1.5rem; margin-bottom: 0.5rem;">Option B: Self-Hosted / Local Development</h3>
+              <p>If you prefer running the MCP server locally on your own machine:</p>
+              <ol style="padding-left: 1.5rem; list-style-type: decimal; margin-top: 0.5rem; margin-bottom: 1rem;">
+                <li style="margin-bottom: 0.5rem;">Start your Everything.Free server locally: <code class="code-inline">npx everything.free-ai-plugins</code> (runs on port 3456).</li>
+                <li style="margin-bottom: 0.5rem;">Expose port 3456 with a secure HTTPS tunnel (e.g. Cloudflare Tunnel / ngrok) so OpenAI servers can reach it.</li>
+                <li style="margin-bottom: 0.5rem;">In ChatGPT, enter your public tunnel HTTPS URL with Authentication: <strong>None</strong>.</li>
               </ol>
             </section>
 
