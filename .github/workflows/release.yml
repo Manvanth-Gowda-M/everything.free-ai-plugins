@@ -7,14 +7,14 @@ on:
   workflow_dispatch:
     inputs:
       publish_npm:
-        description: "Publish to npm registry (via OIDC Trusted Publishing or NPM_TOKEN fallback)"
+        description: "Publish to npm registry (via npm GitHub OIDC Trusted Publishing)"
         required: true
         type: boolean
         default: false
 
 permissions:
-  contents: write # Required for GitHub Release creation
-  id-token: write # Required for npm OIDC Trusted Publishing & automatic Provenance generation
+  contents: write # Required for creating GitHub Release
+  id-token: write # Required for npm GitHub OIDC Trusted Publishing & automatic Provenance
 
 jobs:
   validate-and-release:
@@ -30,6 +30,12 @@ jobs:
           node-version: 22
           registry-url: "https://registry.npmjs.org"
           cache: "npm"
+
+      - name: Explicitly Guarantee npm 11.15.0+ for Trusted Publishing
+        run: |
+          npm install --global npm@11.15.0
+          echo "Active npm version: $(npm --version)"
+          echo "Active node version: $(node --version)"
 
       - name: Clean Dependency Installation
         run: npm ci
@@ -75,13 +81,21 @@ jobs:
           npx everything-free --version
           npx everything-free-ai-plugins --version
 
-      - name: Publish to npm (Trusted Publishing / OIDC with automatic Provenance)
+      - name: Check if Version Already Exists on npm
         if: startsWith(github.ref, 'refs/tags/v') || inputs.publish_npm == true
-        run: npm publish --provenance --access public
-        env:
-          # If NPM_TOKEN is configured in secrets, it acts as fallback;
-          # otherwise npm CLI automatically uses OIDC token from GitHub Actions id-token
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          PKG_VERSION=$(node -p "require('./package.json').version")
+          echo "Checking if everything.free-ai-plugins@$PKG_VERSION is already published on npm..."
+          if npm view "everything.free-ai-plugins@$PKG_VERSION" version >/dev/null 2>&1; then
+            echo "::error::everything.free-ai-plugins@$PKG_VERSION is already published on npm. Skipping publication to prevent errors."
+            exit 1
+          else
+            echo "Version $PKG_VERSION is not yet published. Proceeding with OIDC Trusted Publishing."
+          fi
+
+      - name: Publish to npm (OIDC Trusted Publishing)
+        if: startsWith(github.ref, 'refs/tags/v') || inputs.publish_npm == true
+        run: npm publish --access public
 
       - name: Create GitHub Release
         if: startsWith(github.ref, 'refs/tags/v')

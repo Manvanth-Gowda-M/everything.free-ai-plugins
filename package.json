@@ -24,11 +24,11 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/Quilonix/everything.free-ai-plugins.git"
+    "url": "git+https://github.com/everything-free-by-Quilonix/everything.free-ai-plugins.git"
   },
-  "homepage": "https://github.com/Quilonix/everything.free-ai-plugins#readme",
+  "homepage": "https://github.com/everything-free-by-Quilonix/everything.free-ai-plugins#readme",
   "bugs": {
-    "url": "https://github.com/Quilonix/everything.free-ai-plugins/issues"
+    "url": "https://github.com/everything-free-by-Quilonix/everything.free-ai-plugins/issues"
   },
   "scripts": {
     "build": "tsc",

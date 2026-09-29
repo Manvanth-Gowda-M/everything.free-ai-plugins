@@ -2,7 +2,7 @@
 
 > **One Everything.Free connection → 15 useful, privacy-conscious, 100% free capabilities, MCP resources, and curated prompts for AI assistants.**
 
-[![CI](https://github.com/Quilonix/everything.free-ai-plugins/actions/workflows/ci.yml/badge.svg)](https://github.com/Quilonix/everything.free-ai-plugins/actions)
+[![CI](https://github.com/everything-free-by-Quilonix/everything.free-ai-plugins/actions/workflows/ci.yml/badge.svg)](https://github.com/everything-free-by-Quilonix/everything.free-ai-plugins/actions)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![MCP Compatible](https://img.shields.io/badge/MCP-Compatible-green.svg)](https://modelcontextprotocol.io)
 [![Node.js 22 LTS](https://img.shields.io/badge/Node.js-22%20LTS-brightgreen.svg)](https://nodejs.org)
@@ -137,7 +137,7 @@ everything-free --help
 
 ### Option 3: From Source
 ```bash
-git clone https://github.com/Quilonix/everything.free-ai-plugins.git
+git clone https://github.com/everything-free-by-Quilonix/everything.free-ai-plugins.git
 cd everything.free-ai-plugins
 npm install
 npm run build
